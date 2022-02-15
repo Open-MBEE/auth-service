@@ -20,12 +20,14 @@ fun Application.configureRouting() {
         authenticate("localAuth") {
             get("/protected/route/basic") {
                 val principal = call.principal<UserIdPrincipal>()!!
+                println(principal)
                 call.respondText("Hello ${principal.name}")
             }
         }
         authenticate("ldapAuth") {
             get("/protected/route/ldap") {
                 val principal = call.principal<UserIdPrincipal>()!!
+                println(principal)
                 val jwtAudience = environment.config.property("jwt.audience").getString()
                 val issuer = environment.config.property("jwt.domain").getString()
                 val secret = environment.config.property("jwt.secret").getString()
@@ -36,7 +38,7 @@ fun Application.configureRouting() {
                     .withClaim("username", principal.name)
                     .withExpiresAt(Date(System.currentTimeMillis() + 60000))
                     .sign(Algorithm.HMAC256(secret))
-                call.respond(hashMapOf(token to "token"))
+                call.respond(hashMapOf("token" to token))
             }
         }
     }

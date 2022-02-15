@@ -4,35 +4,40 @@ import com.orbitz.consul.AgentClient
 import com.orbitz.consul.Consul
 import com.orbitz.consul.model.agent.ImmutableRegistration
 import com.orbitz.consul.model.agent.Registration
-import com.orbitz.consul.model.catalog.ServiceWeights
 import io.ktor.application.*
 import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import io.ktor.util.*
-import io.ktor.util.pipeline.*
 import java.util.*
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
 
 
 fun Application.startConsul() {
-    var selfAddressString = ""
+    var selfHost: String = ""
+    var selfPort: Int = 0
     (environment as ApplicationEngineEnvironment).connectors.forEach { connector ->
-        selfAddressString = "${connector.host}:${connector.port}"
+        selfHost = connector.host
+        selfPort = connector.port
     }
 
     install(ConsulFeature) {
-        consulUrl = "https://mms5-test.jpl.nasa.gov"
-        selfAddress = selfAddressString
+        consulUrl = environment.config.propertyOrNull("consul.service.url")?.getString() ?: "http://localhost:8500"
+        consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: "1234567"
+        consulServiceId = environment.config.propertyOrNull("consul.service.id")?.getString() ?: "1"
+        selfAddressHost = selfHost
+        selfAddressPort = selfPort
     }
 }
 
-class ConsulFeature(var consulUrl: String) {
+class ConsulFeature() {
     class Config {
-        var consulUrl: String = "https://mms5-test.jpl.nasa.gov"
-        var selfAddress: String = "0.0.0.0:8080"
+        var consulUrl: String = ""
+        var consulToken: String = ""
+        var consulServiceId: String = ""
+        var selfAddressHost: String = ""
+        var selfAddressPort: Int = 8080
 
-        fun build(): ConsulFeature = ConsulFeature(consulUrl)
+        fun build(): ConsulFeature = ConsulFeature()
     }
 
     companion object Feature : ApplicationFeature<ApplicationCallPipeline, Config, ConsulFeature> {
@@ -40,32 +45,28 @@ class ConsulFeature(var consulUrl: String) {
 
         override fun install(pipeline: ApplicationCallPipeline, configure: Config.() -> Unit): ConsulFeature {
             val configuration = Config().apply(configure)
-            val feature = ConsulFeature(configuration.consulUrl)
 
             println("Consul Registration starting...")
 
-            pipeline.intercept(ApplicationCallPipeline.Setup) {
-                println("pipeline intercepted")
+            val consulClient = Consul.builder()
+                .withUrl(configuration.consulUrl)
+                .withHostnameVerifier(CustomHostnameVerifier)
+                .withTokenAuth(configuration.consulToken)
+                .build()
+            val agentClient: AgentClient = consulClient.agentClient()
 
-                val consulClient = Consul.builder()
-                    .withUrl(feature.consulUrl)
-                    .withHostnameVerifier(CustomHostnameVerifier)
-                    .withTokenAuth("123456")
-                    .build()
-                val agentClient: AgentClient = consulClient.agentClient()
+            val service: Registration = ImmutableRegistration.builder()
+                .id(configuration.consulServiceId)
+                .name("auth-service")
+                .port(configuration.selfAddressPort)
+                .check(Registration.RegCheck.ttl(3L)) // registers with a TTL of 3 seconds
+                .tags(listOf("L0"))
+                .meta(Collections.singletonMap("version", "1.0"))
+                .build()
 
-                val serviceId = "1"
-                val service: Registration = ImmutableRegistration.builder()
-                    .id(serviceId)
-                    .name("auth-service")
-                    .port(8080)
-                    .check(Registration.RegCheck.ttl(3L)) // registers with a TTL of 3 seconds
-                    .tags(listOf("L1"))
-                    .meta(Collections.singletonMap("version", "1.0"))
-                    .build()
+            agentClient.register(service)
+            agentClient.pass(configuration.consulServiceId)
 
-                agentClient.register(service)
-            }
             return configuration.build()
         }
     }
