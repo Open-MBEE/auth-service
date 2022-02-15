@@ -1,6 +1,7 @@
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
+val consul_version: String by project
 
 plugins {
     application
@@ -9,6 +10,7 @@ plugins {
 
 group = "org.openmbee.mms5"
 version = "0.0.1"
+
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 }
@@ -24,7 +26,8 @@ dependencies {
     implementation("io.ktor:ktor-auth-jwt:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("com.netflix.eureka:eureka-client:1.10.17")
+    implementation("com.orbitz.consul:consul-client:$consul_version")
+
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }

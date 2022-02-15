@@ -11,5 +11,5 @@ fun main(args: Array<String>): Unit =
 fun Application.module() {
     configureSecurity()
     configureRouting()
-
+    startConsul()
 }
