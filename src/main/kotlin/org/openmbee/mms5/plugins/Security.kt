@@ -1,15 +1,17 @@
 package org.openmbee.mms5.plugins
 
 import io.ktor.auth.*
-import io.ktor.auth.ldap.*
 import io.ktor.auth.jwt.*
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.application.*
+import org.openmbee.mms5.*
 
 fun Application.configureSecurity() {
     val ldapServerLocation = environment.config.propertyOrNull("ldap.location")?.getString() ?: ""
-    val ldapUserDnPattern = environment.config.propertyOrNull("ldap.pattern")?.getString() ?: ""
+    val ldapBase = environment.config.propertyOrNull("ldap.base")?.getString() ?: ""
+    val ldapUserDnPattern = (environment.config.propertyOrNull("ldap.user")?.getString() + "," + ldapBase) ?: ""
+    val ldapGroupSearch = environment.config.propertyOrNull("ldap.group")?.getString() ?: ""
 
     authentication {
     	basic(name = "localAuth") {
@@ -29,7 +31,9 @@ fun Application.configureSecurity() {
                 ldapAuthenticate(
                     credential,
                     "ldaps://${ldapServerLocation}",
-                    ldapUserDnPattern
+                    ldapUserDnPattern,
+                    ldapBase,
+                    ldapGroupSearch.format(ldapUserDnPattern.format(ldapEscape(credential.name)))
                 )
             }
         }

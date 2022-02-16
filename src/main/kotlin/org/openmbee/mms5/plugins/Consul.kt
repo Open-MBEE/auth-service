@@ -5,6 +5,8 @@ import com.orbitz.consul.Consul
 import com.orbitz.consul.model.agent.ImmutableRegistration
 import com.orbitz.consul.model.agent.Registration
 import io.ktor.application.*
+import io.ktor.response.*
+import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.util.*
 import java.util.*
@@ -26,6 +28,12 @@ fun Application.startConsul() {
         consulServiceId = environment.config.propertyOrNull("consul.service.id")?.getString() ?: "1"
         selfAddressHost = selfHost
         selfAddressPort = selfPort
+    }
+
+    routing {
+        get("/healthcheck") {
+            call.respond(hashMapOf("status" to "healthy"))
+        }
     }
 }
 
@@ -59,8 +67,8 @@ class ConsulFeature() {
                 .id(configuration.consulServiceId)
                 .name("auth-service")
                 .port(configuration.selfAddressPort)
-                .check(Registration.RegCheck.ttl(3L)) // registers with a TTL of 3 seconds
-                .tags(listOf("L0"))
+                .check(Registration.RegCheck.ttl(3L))
+                .tags(listOf("L0", "auth"))
                 .meta(Collections.singletonMap("version", "1.0"))
                 .build()
 

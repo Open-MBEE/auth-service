@@ -1,0 +1,22 @@
+ktor {
+    development = true
+    deployment {
+        port = 8080
+        port = ${?PORT}
+    }
+    application {
+        modules = [ org.openmbee.mms5.ApplicationKt.module ]
+    }
+}
+
+jwt {
+    domain = "https://jwt-provider-domain/"
+    audience = "jwt-audience"
+    realm = "ktor sample app"
+    secret = "test1234"
+}
+
+ldap {
+    location = "ldap.openmbee.org:636"
+    pattern = "uid=%s,ou=users"
+}
