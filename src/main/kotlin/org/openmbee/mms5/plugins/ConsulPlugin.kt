@@ -12,8 +12,8 @@ import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
 
 
-fun Application.registerApplication() {
-    install(ConsulFeature) {
+fun Application.registerService() {
+    install(ConsulPlugin) {
         consulUrl = environment.config.propertyOrNull("consul.service.url")?.getString() ?: "http://localhost:8500"
         consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: ""
         consulServiceName = environment.config.propertyOrNull("consul.service.name")?.getString() ?: "auth-service"
@@ -25,14 +25,14 @@ fun Application.registerApplication() {
         get("/healthcheck") {
             val consulUrl = environment.config.propertyOrNull("consul.service.url")?.getString() ?: "http://localhost:8500"
             val consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: ""
-            val client = ConsulFeature.getConsulClient(consulUrl, consulToken)
-            client.agentClient().pass(ConsulFeature.getServiceId())
+            val client = ConsulPlugin.getConsulClient(consulUrl, consulToken)
+            client.agentClient().pass(ConsulPlugin.getServiceId())
             call.respond(hashMapOf("status" to "healthy"))
         }
     }
 }
 
-class ConsulFeature {
+class ConsulPlugin {
     class Config {
         var consulUrl: String = ""
         var consulToken: String = ""
@@ -40,14 +40,14 @@ class ConsulFeature {
         var consulServicePort: Int = 8080
         var consulServiceTags: List<String> = emptyList()
 
-        fun build(): ConsulFeature = ConsulFeature()
+        fun build(): ConsulPlugin = ConsulPlugin()
     }
 
-    companion object Feature : ApplicationFeature<ApplicationCallPipeline, Config, ConsulFeature> {
+    companion object Feature : ApplicationFeature<ApplicationCallPipeline, Config, ConsulPlugin> {
         private val serviceId = UUID.randomUUID().toString()
-        override val key = AttributeKey<ConsulFeature>("ConsulFeature")
+        override val key = AttributeKey<ConsulPlugin>("ConsulFeature")
 
-        override fun install(pipeline: ApplicationCallPipeline, configure: Config.() -> Unit): ConsulFeature {
+        override fun install(pipeline: ApplicationCallPipeline, configure: Config.() -> Unit): ConsulPlugin {
             val configuration = Config().apply(configure)
 
             println("Consul Registration starting...")

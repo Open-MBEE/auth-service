@@ -8,7 +8,7 @@ import io.ktor.application.*
 import org.openmbee.mms5.*
 
 
-fun Application.configureSecurity() {
+fun Application.configureAuthentication() {
     val ldapServerLocation = environment.config.propertyOrNull("ldap.location")?.getString() ?: ""
     val ldapBase = environment.config.propertyOrNull("ldap.base")?.getString() ?: ""
     val ldapUserDnPattern = (environment.config.propertyOrNull("ldap.userPattern")?.getString() + "," + ldapBase)

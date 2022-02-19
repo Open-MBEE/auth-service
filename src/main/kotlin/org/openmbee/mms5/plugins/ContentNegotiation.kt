@@ -13,6 +13,3 @@ fun Application.configureContentNegotiation() {
         }
     }
 }
-
-class Response {
-}

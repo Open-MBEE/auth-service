@@ -10,9 +10,9 @@ fun main(args: Array<String>): Unit =
 @Suppress("unused") // application.conf references the main function. This annotation prevents the IDE from marking it as unused.
 fun Application.module() {
     configureContentNegotiation()
-    configureSecurity()
+    configureAuthentication()
     configureRouting()
     if (environment.config.propertyOrNull("consul.enabled")?.getString() == "true") {
-        registerApplication()
+        registerService()
     }
 }
