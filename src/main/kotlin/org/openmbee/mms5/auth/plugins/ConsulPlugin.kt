@@ -24,10 +24,12 @@ fun Application.registerService() {
     routing {
         val consulUrl = environment.config.propertyOrNull("consul.service.url")?.getString() ?: "http://localhost:8500"
         val consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: ""
+        val consulServiceName = environment.config.propertyOrNull("consul.service.name")?.getString() ?: "auth-service"
+
         val client = ConsulPlugin.getConsulClient(consulUrl, consulToken)
 
         get("/healthcheck") {
-            client.agentClient().pass(ConsulPlugin.getServiceId())
+            client.agentClient().pass(consulServiceName)
             call.respond(hashMapOf("status" to "healthy"))
         }
     }
@@ -45,7 +47,6 @@ class ConsulPlugin {
     }
 
     companion object Feature : ApplicationFeature<ApplicationCallPipeline, Config, ConsulPlugin> {
-        private val serviceId = UUID.randomUUID().toString()
         override val key = AttributeKey<ConsulPlugin>("ConsulFeature")
 
         override fun install(pipeline: ApplicationCallPipeline, configure: Config.() -> Unit): ConsulPlugin {
@@ -55,28 +56,23 @@ class ConsulPlugin {
 
             val agentClient = getConsulClient(configuration.consulUrl, configuration.consulToken).agentClient()
             val service = ImmutableRegistration.builder()
-                .id(getServiceId())
-                .name(configuration.consulServiceName)
-                .port(configuration.consulServicePort)
-                .check(Registration.RegCheck.ttl(300L))
-                .tags(configuration.consulServiceTags)
-                .meta(Collections.singletonMap("version", "1.0"))
-                .build()
+                    .name(configuration.consulServiceName)
+                    .port(configuration.consulServicePort)
+                    .check(Registration.RegCheck.ttl(300L))
+                    .tags(configuration.consulServiceTags)
+                    .meta(Collections.singletonMap("version", "1.0"))
+                    .build()
             agentClient.register(service)
-            agentClient.pass(getServiceId())
+            agentClient.pass(configuration.consulServiceName)
             return configuration.build()
         }
 
         fun getConsulClient(consulUrl: String, consulToken: String): Consul {
             return Consul.builder()
-                .withUrl(consulUrl)
-                .withHostnameVerifier(CustomHostnameVerifier)
-                .withTokenAuth(consulToken)
-                .build()
-        }
-
-        fun getServiceId(): String {
-            return this.serviceId
+                    .withUrl(consulUrl)
+                    .withHostnameVerifier(CustomHostnameVerifier)
+                    .withTokenAuth(consulToken)
+                    .build()
         }
     }
 }
