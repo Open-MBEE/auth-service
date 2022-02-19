@@ -7,6 +7,7 @@ import io.ktor.jackson.*
 
 
 fun Application.configureContentNegotiation() {
+    install(CORS)
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
