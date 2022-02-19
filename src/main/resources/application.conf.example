@@ -17,7 +17,7 @@ jwt {
 }
 
 ldap {
-    location = "ldap.openmbee.org:636"
+    location = "ldap://ldap.openmbee.org:636"
     pattern = "uid=%s,ou=users"
 }
 

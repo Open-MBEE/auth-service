@@ -32,7 +32,7 @@ fun Application.configureAuthentication() {
             validate { credential ->
                 ldapAuthenticate(
                     credential,
-                    "ldaps://${ldapServerLocation}",
+                    ldapServerLocation,
                     ldapUserDnPattern,
                     ldapBase,
                     ldapGroupAttribute,
