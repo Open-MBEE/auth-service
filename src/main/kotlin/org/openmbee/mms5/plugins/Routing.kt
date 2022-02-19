@@ -9,6 +9,7 @@ import io.ktor.response.*
 import org.openmbee.mms5.UserDetailsPrincipal
 import java.util.*
 
+
 fun Application.configureRouting() {
     routing {
         get("/") {

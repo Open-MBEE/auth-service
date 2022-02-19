@@ -7,6 +7,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.application.*
 import org.openmbee.mms5.*
 
+
 fun Application.configureSecurity() {
     val ldapServerLocation = environment.config.propertyOrNull("ldap.location")?.getString() ?: ""
     val ldapBase = environment.config.propertyOrNull("ldap.base")?.getString() ?: ""
