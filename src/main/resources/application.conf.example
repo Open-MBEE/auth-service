@@ -12,7 +12,7 @@ ktor {
 jwt {
     domain = "https://jwt-provider-domain/"
     audience = "jwt-audience"
-    realm = "ktor sample app"
+    realm = "MMS5 Auth Service"
     secret = "test1234"
 }
 
