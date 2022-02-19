@@ -20,3 +20,14 @@ ldap {
     location = "ldap.openmbee.org:636"
     pattern = "uid=%s,ou=users"
 }
+
+consul {
+    enabled = false
+    service {
+        url = "https://consul-server-0:8501"
+        token = "123456"
+        name = "auth-service"
+        port = 8080
+        tags = ["L0", "authentication"]
+    }
+}

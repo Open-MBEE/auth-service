@@ -11,7 +11,7 @@ import org.openmbee.mms5.*
 fun Application.configureSecurity() {
     val ldapServerLocation = environment.config.propertyOrNull("ldap.location")?.getString() ?: ""
     val ldapBase = environment.config.propertyOrNull("ldap.base")?.getString() ?: ""
-    val ldapUserDnPattern = (environment.config.propertyOrNull("ldap.userPattern")?.getString() + "," + ldapBase) ?: ""
+    val ldapUserDnPattern = (environment.config.propertyOrNull("ldap.userPattern")?.getString() + "," + ldapBase)
     val ldapGroupAttribute = environment.config.propertyOrNull("ldap.groupAttribute")?.getString() ?: ""
     val ldapGroupSearch = environment.config.propertyOrNull("ldap.groupSearchFilter")?.getString() ?: ""
 

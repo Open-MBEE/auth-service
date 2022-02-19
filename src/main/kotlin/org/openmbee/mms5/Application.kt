@@ -12,5 +12,7 @@ fun Application.module() {
     configureContentNegotiation()
     configureSecurity()
     configureRouting()
-    registerApplication()
+    if (environment.config.propertyOrNull("consul.enabled")?.getString() == "true") {
+        registerApplication()
+    }
 }
