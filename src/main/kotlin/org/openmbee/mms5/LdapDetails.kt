@@ -5,13 +5,12 @@ import java.util.*
 import javax.naming.*
 import javax.naming.directory.*
 
-
-public data class UserDetailsPrincipal(val name: String, val groups: List<String?>) : Principal
+data class UserDetailsPrincipal(val name: String, val groups: List<String?>) : Principal
 
 /**
  * Do LDAP authentication and verify [credential] by [doVerify] function
  */
-public fun <K : Credential, P : Any> ldapAuthenticate(
+fun <K : Credential, P : Any> ldapAuthenticate(
     credential: K,
     ldapServerURL: String,
     ldapEnvironmentBuilder: (MutableMap<String, Any?>) -> Unit = {},
@@ -30,9 +29,9 @@ public fun <K : Credential, P : Any> ldapAuthenticate(
 }
 
 /**
- * Do LDAP authentication and verify [UserPasswordCredential] by [validate] function and construct [UserIdPrincipal]
+ * Do LDAP authentication and verify [UserPasswordCredential] by [validate] function and construct [UserDetailsPrincipal]
  */
-public fun ldapAuthenticate(
+fun ldapAuthenticate(
     credential: UserPasswordCredential,
     ldapServerURL: String,
     userDNFormat: String,
@@ -48,31 +47,32 @@ public fun ldapAuthenticate(
 }
 
 /**
- * Do LDAP authentication and verify [UserPasswordCredential] by [userDNFormat] and construct [UserIdPrincipal]
+ * Do LDAP authentication and verify [UserPasswordCredential] by [userDNFormat] and construct [UserDetailsPrincipal]
  */
-public fun ldapAuthenticate(
+fun ldapAuthenticate(
     credential: UserPasswordCredential,
     ldapServerURL: String,
     userDNFormat: String,
     ldapBase: String,
-    filter: String,
+    groupAttribute: String,
+    groupFilter: String,
 ): UserDetailsPrincipal? {
     return ldapAuthenticate(credential, ldapServerURL, userDNFormat) {
         val sc = SearchControls()
         sc.returningAttributes = arrayOf("cn")
         sc.searchScope = SearchControls.SUBTREE_SCOPE
 
-        val resultList = this.search(ldapBase, filter, sc).map()
+        val resultList = this.search(ldapBase, groupFilter, sc).mapAttrToString(groupAttribute)
         UserDetailsPrincipal(it.name, resultList)
     }
 }
 
-private fun <T> NamingEnumeration<T>.map(): List<String?> {
+private fun <T> NamingEnumeration<T>.mapAttrToString(attrString: String): List<String?> {
     val newList = mutableListOf<String?>()
     while (this.hasMore()) {
         val sr = this.next() as SearchResult
         val attrs = sr.attributes
-        val attr = attrs["cn"]
+        val attr = attrs[attrString]
         newList.add(attr.toString().drop(4))
     }
     return newList

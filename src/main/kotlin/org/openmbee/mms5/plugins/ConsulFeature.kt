@@ -1,8 +1,6 @@
 package org.openmbee.mms5.plugins
 
-import com.orbitz.consul.AgentClient
 import com.orbitz.consul.Consul
-import com.orbitz.consul.KeyValueClient
 import com.orbitz.consul.model.agent.ImmutableRegistration
 import com.orbitz.consul.model.agent.Registration
 import io.ktor.application.*
@@ -17,33 +15,36 @@ import javax.net.ssl.SSLSession
 fun Application.registerApplication() {
     install(ConsulFeature) {
         consulUrl = environment.config.propertyOrNull("consul.service.url")?.getString() ?: "http://localhost:8500"
-        consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: "1234567"
-        consulServiceId = environment.config.propertyOrNull("consul.service.id")?.getString() ?: "1"
-        consulServiceName = environment.config.propertyOrNull("consul.service.name")?.getString() ?: ""
-        consulServicePort = environment.config.propertyOrNull("consul.service.port")?.getString()?.toInt() ?: 0
+        consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: ""
+        consulServiceName = environment.config.propertyOrNull("consul.service.name")?.getString() ?: "auth-service"
+        consulServicePort = environment.config.propertyOrNull("consul.service.port")?.getString()?.toInt() ?: 8080
         consulServiceTags = environment.config.propertyOrNull("consul.service.tags")?.getList() ?: emptyList()
     }
 
     routing {
         get("/healthcheck") {
+            val consulUrl = environment.config.propertyOrNull("consul.service.url")?.getString() ?: "http://localhost:8500"
+            val consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: ""
+            val client = ConsulFeature.getConsulClient(consulUrl, consulToken)
+            client.agentClient().pass(ConsulFeature.getServiceId())
             call.respond(hashMapOf("status" to "healthy"))
         }
     }
 }
 
-class ConsulFeature() {
+class ConsulFeature {
     class Config {
         var consulUrl: String = ""
         var consulToken: String = ""
-        var consulServiceId: String = ""
         var consulServiceName: String = ""
-        var consulServicePort: Int = 0
+        var consulServicePort: Int = 8080
         var consulServiceTags: List<String> = emptyList()
 
         fun build(): ConsulFeature = ConsulFeature()
     }
 
     companion object Feature : ApplicationFeature<ApplicationCallPipeline, Config, ConsulFeature> {
+        private val serviceId = UUID.randomUUID().toString()
         override val key = AttributeKey<ConsulFeature>("ConsulFeature")
 
         override fun install(pipeline: ApplicationCallPipeline, configure: Config.() -> Unit): ConsulFeature {
@@ -51,15 +52,9 @@ class ConsulFeature() {
 
             println("Consul Registration starting...")
 
-            val consulClient = Consul.builder()
-                .withUrl(configuration.consulUrl)
-                .withHostnameVerifier(CustomHostnameVerifier)
-                .withTokenAuth(configuration.consulToken)
-                .build()
-
-            val agentClient: AgentClient = consulClient.agentClient()
-            val service: Registration = ImmutableRegistration.builder()
-                .id(configuration.consulServiceId)
+            val agentClient = getConsulClient(configuration.consulUrl, configuration.consulToken).agentClient()
+            val service = ImmutableRegistration.builder()
+                .id(serviceId)
                 .name(configuration.consulServiceName)
                 .port(configuration.consulServicePort)
                 .check(Registration.RegCheck.ttl(300L))
@@ -67,12 +62,25 @@ class ConsulFeature() {
                 .meta(Collections.singletonMap("version", "1.0"))
                 .build()
             agentClient.register(service)
-            agentClient.pass(configuration.consulServiceId)
+            agentClient.pass(serviceId)
             return configuration.build()
+        }
+
+        fun getConsulClient(consulUrl: String, consulToken: String): Consul {
+            return Consul.builder()
+                .withUrl(consulUrl)
+                .withHostnameVerifier(CustomHostnameVerifier)
+                .withTokenAuth(consulToken)
+                .build()
+        }
+
+        fun getServiceId(): String {
+            return this.serviceId
         }
     }
 }
 
+// TODO: Remove when unnecessary?
 open class CustomHostnameVerifier: HostnameVerifier {
     override fun verify(hostname: String?, session: SSLSession?): Boolean {
         return true

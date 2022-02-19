@@ -10,7 +10,6 @@ import org.openmbee.mms5.UserDetailsPrincipal
 import java.util.*
 
 fun Application.configureRouting() {
-
     routing {
         get("/") {
             call.respondText("Hello World!")
@@ -18,7 +17,6 @@ fun Application.configureRouting() {
         authenticate("ldapAuth") {
             get("/login") {
                 val principal = call.principal<UserDetailsPrincipal>()!!
-                println(principal)
                 val jwtAudience = environment.config.property("jwt.audience").getString()
                 val issuer = environment.config.property("jwt.domain").getString()
                 val secret = environment.config.property("jwt.secret").getString()

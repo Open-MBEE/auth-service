@@ -10,8 +10,9 @@ import org.openmbee.mms5.*
 fun Application.configureSecurity() {
     val ldapServerLocation = environment.config.propertyOrNull("ldap.location")?.getString() ?: ""
     val ldapBase = environment.config.propertyOrNull("ldap.base")?.getString() ?: ""
-    val ldapUserDnPattern = (environment.config.propertyOrNull("ldap.user")?.getString() + "," + ldapBase) ?: ""
-    val ldapGroupSearch = environment.config.propertyOrNull("ldap.group")?.getString() ?: ""
+    val ldapUserDnPattern = (environment.config.propertyOrNull("ldap.userPattern")?.getString() + "," + ldapBase) ?: ""
+    val ldapGroupAttribute = environment.config.propertyOrNull("ldap.groupAttribute")?.getString() ?: ""
+    val ldapGroupSearch = environment.config.propertyOrNull("ldap.groupSearchFilter")?.getString() ?: ""
 
     authentication {
     	basic(name = "localAuth") {
@@ -33,6 +34,7 @@ fun Application.configureSecurity() {
                     "ldaps://${ldapServerLocation}",
                     ldapUserDnPattern,
                     ldapBase,
+                    ldapGroupAttribute,
                     ldapGroupSearch.format(ldapUserDnPattern.format(ldapEscape(credential.name)))
                 )
             }
@@ -44,8 +46,7 @@ fun Application.configureSecurity() {
             val secret = environment.config.property("jwt.secret").getString()
             realm = environment.config.property("jwt.realm").getString()
             verifier(
-                JWT
-                    .require(Algorithm.HMAC256(secret))
+                JWT.require(Algorithm.HMAC256(secret))
                     .withAudience(jwtAudience)
                     .withIssuer(issuer)
                     .build()
