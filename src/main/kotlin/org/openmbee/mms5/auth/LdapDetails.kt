@@ -1,4 +1,4 @@
-package org.openmbee.mms5
+package org.openmbee.mms5.auth
 
 import io.ktor.auth.*
 import java.util.*
@@ -59,7 +59,7 @@ fun ldapAuthenticate(
 ): UserDetailsPrincipal? {
     return ldapAuthenticate(credential, ldapServerURL, userDNFormat) {
         val sc = SearchControls()
-        sc.returningAttributes = arrayOf("cn")
+        sc.returningAttributes = arrayOf(groupAttribute)
         sc.searchScope = SearchControls.SUBTREE_SCOPE
 
         val resultList = this.search(ldapBase, groupFilter, sc).mapAttrToString(groupAttribute)

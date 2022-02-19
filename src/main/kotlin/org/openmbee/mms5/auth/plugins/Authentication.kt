@@ -1,11 +1,11 @@
-package org.openmbee.mms5.plugins
+package org.openmbee.mms5.auth.plugins
 
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.application.*
-import org.openmbee.mms5.*
+import org.openmbee.mms5.auth.*
 
 
 fun Application.configureAuthentication() {

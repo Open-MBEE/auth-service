@@ -1,4 +1,4 @@
-package org.openmbee.mms5.plugins
+package org.openmbee.mms5.auth.plugins
 
 import com.orbitz.consul.Consul
 import com.orbitz.consul.model.agent.ImmutableRegistration
@@ -22,10 +22,11 @@ fun Application.registerService() {
     }
 
     routing {
+        val consulUrl = environment.config.propertyOrNull("consul.service.url")?.getString() ?: "http://localhost:8500"
+        val consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: ""
+        val client = ConsulPlugin.getConsulClient(consulUrl, consulToken)
+
         get("/healthcheck") {
-            val consulUrl = environment.config.propertyOrNull("consul.service.url")?.getString() ?: "http://localhost:8500"
-            val consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: ""
-            val client = ConsulPlugin.getConsulClient(consulUrl, consulToken)
             client.agentClient().pass(ConsulPlugin.getServiceId())
             call.respond(hashMapOf("status" to "healthy"))
         }
@@ -54,7 +55,7 @@ class ConsulPlugin {
 
             val agentClient = getConsulClient(configuration.consulUrl, configuration.consulToken).agentClient()
             val service = ImmutableRegistration.builder()
-                .id(serviceId)
+                .id(getServiceId())
                 .name(configuration.consulServiceName)
                 .port(configuration.consulServicePort)
                 .check(Registration.RegCheck.ttl(300L))
@@ -62,7 +63,7 @@ class ConsulPlugin {
                 .meta(Collections.singletonMap("version", "1.0"))
                 .build()
             agentClient.register(service)
-            agentClient.pass(serviceId)
+            agentClient.pass(getServiceId())
             return configuration.build()
         }
 

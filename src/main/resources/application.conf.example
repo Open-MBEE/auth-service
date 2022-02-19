@@ -5,7 +5,7 @@ ktor {
         port = ${?PORT}
     }
     application {
-        modules = [ org.openmbee.mms5.ApplicationKt.module ]
+        modules = [ org.openmbee.mms5.auth.ApplicationKt.module ]
     }
 }
 

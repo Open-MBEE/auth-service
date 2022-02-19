@@ -1,20 +1,9 @@
 package org.openmbee.mms5
 
-import io.ktor.auth.*
-import io.ktor.util.*
-import io.ktor.routing.*
 import io.ktor.http.*
-import io.ktor.auth.ldap.*
-import io.ktor.auth.jwt.*
-import com.auth0.jwt.JWT
-import com.auth0.jwt.JWTVerifier
-import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
 import kotlin.test.*
 import io.ktor.server.testing.*
-import org.openmbee.mms5.plugins.*
+import org.openmbee.mms5.auth.plugins.*
 
 class ApplicationTest {
     @Test

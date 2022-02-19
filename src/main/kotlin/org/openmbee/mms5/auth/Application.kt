@@ -1,7 +1,7 @@
-package org.openmbee.mms5
+package org.openmbee.mms5.auth
 
 import io.ktor.application.*
-import org.openmbee.mms5.plugins.*
+import org.openmbee.mms5.auth.plugins.*
 
 
 fun main(args: Array<String>): Unit =
