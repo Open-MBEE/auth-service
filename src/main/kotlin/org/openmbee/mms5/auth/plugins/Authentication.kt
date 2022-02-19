@@ -17,23 +17,23 @@ fun Application.configureAuthentication() {
     val ldapGroupSearch = environment.config.propertyOrNull("ldap.groupSearchFilter")?.getString() ?: ""
 
     authentication {
-    	basic(name = "localAuth") {
-    		realm = "MMS5 Basic"
-    		validate { credentials ->
+        basic(name = "localAuth") {
+            realm = "MMS5 Basic"
+            validate { credentials ->
                 if (credentials.name == credentials.password) UserIdPrincipal(credentials.name) else null
-    		}
-    	}
+            }
+        }
 
         basic("ldapAuth") {
             realm = "MMS5 LDAP"
             validate { credential ->
                 ldapAuthenticate(
-                    credential,
-                    ldapServerLocation,
-                    ldapUserDnPattern,
-                    ldapBase,
-                    ldapGroupAttribute,
-                    ldapGroupSearch.format(ldapUserDnPattern.format(ldapEscape(credential.name)))
+                        credential,
+                        ldapServerLocation,
+                        ldapUserDnPattern,
+                        ldapBase,
+                        ldapGroupAttribute,
+                        ldapGroupSearch.format(ldapUserDnPattern.format(ldapEscape(credential.name)))
                 )
             }
         }
@@ -44,10 +44,10 @@ fun Application.configureAuthentication() {
             val secret = environment.config.property("jwt.secret").getString()
             realm = environment.config.property("jwt.realm").getString()
             verifier(
-                JWT.require(Algorithm.HMAC256(secret))
-                    .withAudience(jwtAudience)
-                    .withIssuer(issuer)
-                    .build()
+                    JWT.require(Algorithm.HMAC256(secret))
+                            .withAudience(jwtAudience)
+                            .withIssuer(issuer)
+                            .build()
             )
             validate { credential ->
                 if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
