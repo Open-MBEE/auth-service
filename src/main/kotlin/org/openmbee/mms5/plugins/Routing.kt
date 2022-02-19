@@ -3,12 +3,9 @@ package org.openmbee.mms5.plugins
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.routing.*
-import io.ktor.http.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.util.pipeline.*
 import org.openmbee.mms5.UserDetailsPrincipal
 import java.util.*
 
@@ -18,15 +15,8 @@ fun Application.configureRouting() {
         get("/") {
             call.respondText("Hello World!")
         }
-        authenticate("localAuth") {
-            get("/protected/route/basic") {
-                val principal = call.principal<UserIdPrincipal>()!!
-                println(principal)
-                call.respondText("Hello ${principal.name}")
-            }
-        }
         authenticate("ldapAuth") {
-            get("/protected/route/ldap") {
+            get("/login") {
                 val principal = call.principal<UserDetailsPrincipal>()!!
                 println(principal)
                 val jwtAudience = environment.config.property("jwt.audience").getString()

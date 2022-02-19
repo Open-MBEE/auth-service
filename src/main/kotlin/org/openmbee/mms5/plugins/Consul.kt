@@ -2,32 +2,26 @@ package org.openmbee.mms5.plugins
 
 import com.orbitz.consul.AgentClient
 import com.orbitz.consul.Consul
+import com.orbitz.consul.KeyValueClient
 import com.orbitz.consul.model.agent.ImmutableRegistration
 import com.orbitz.consul.model.agent.Registration
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.server.engine.*
 import io.ktor.util.*
 import java.util.*
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
 
 
-fun Application.startConsul() {
-    var selfHost: String = ""
-    var selfPort: Int = 0
-    (environment as ApplicationEngineEnvironment).connectors.forEach { connector ->
-        selfHost = connector.host
-        selfPort = connector.port
-    }
-
+fun Application.registerApplication() {
     install(ConsulFeature) {
         consulUrl = environment.config.propertyOrNull("consul.service.url")?.getString() ?: "http://localhost:8500"
         consulToken = environment.config.propertyOrNull("consul.service.token")?.getString() ?: "1234567"
         consulServiceId = environment.config.propertyOrNull("consul.service.id")?.getString() ?: "1"
-        selfAddressHost = selfHost
-        selfAddressPort = selfPort
+        consulServiceName = environment.config.propertyOrNull("consul.service.name")?.getString() ?: ""
+        consulServicePort = environment.config.propertyOrNull("consul.service.port")?.getString()?.toInt() ?: 0
+        consulServiceTags = environment.config.propertyOrNull("consul.service.tags")?.getList() ?: emptyList()
     }
 
     routing {
@@ -42,8 +36,9 @@ class ConsulFeature() {
         var consulUrl: String = ""
         var consulToken: String = ""
         var consulServiceId: String = ""
-        var selfAddressHost: String = ""
-        var selfAddressPort: Int = 8080
+        var consulServiceName: String = ""
+        var consulServicePort: Int = 0
+        var consulServiceTags: List<String> = emptyList()
 
         fun build(): ConsulFeature = ConsulFeature()
     }
@@ -61,20 +56,18 @@ class ConsulFeature() {
                 .withHostnameVerifier(CustomHostnameVerifier)
                 .withTokenAuth(configuration.consulToken)
                 .build()
-            val agentClient: AgentClient = consulClient.agentClient()
 
+            val agentClient: AgentClient = consulClient.agentClient()
             val service: Registration = ImmutableRegistration.builder()
                 .id(configuration.consulServiceId)
-                .name("auth-service")
-                .port(configuration.selfAddressPort)
-                .check(Registration.RegCheck.ttl(3L))
-                .tags(listOf("L0", "auth"))
+                .name(configuration.consulServiceName)
+                .port(configuration.consulServicePort)
+                .check(Registration.RegCheck.ttl(300L))
+                .tags(configuration.consulServiceTags)
                 .meta(Collections.singletonMap("version", "1.0"))
                 .build()
-
             agentClient.register(service)
             agentClient.pass(configuration.consulServiceId)
-
             return configuration.build()
         }
     }
@@ -84,6 +77,5 @@ open class CustomHostnameVerifier: HostnameVerifier {
     override fun verify(hostname: String?, session: SSLSession?): Boolean {
         return true
     }
-
     companion object HostnameVerifier : CustomHostnameVerifier()
 }

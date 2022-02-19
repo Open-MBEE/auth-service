@@ -1,7 +1,6 @@
 package org.openmbee.mms5
 
 import io.ktor.application.*
-import io.ktor.auth.*
 import org.openmbee.mms5.plugins.*
 
 fun main(args: Array<String>): Unit =
@@ -12,5 +11,5 @@ fun Application.module() {
     configureContentNegotiation()
     configureSecurity()
     configureRouting()
-    startConsul()
+    registerApplication()
 }
