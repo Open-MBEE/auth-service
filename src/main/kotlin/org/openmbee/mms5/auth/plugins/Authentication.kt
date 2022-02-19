@@ -1,11 +1,12 @@
 package org.openmbee.mms5.auth.plugins
 
-import io.ktor.auth.*
-import io.ktor.auth.jwt.*
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.application.*
-import org.openmbee.mms5.auth.*
+import io.ktor.auth.*
+import io.ktor.auth.jwt.*
+import org.openmbee.mms5.auth.ldapAuthenticate
+import org.openmbee.mms5.auth.ldapEscape
 
 
 fun Application.configureAuthentication() {
@@ -19,11 +20,7 @@ fun Application.configureAuthentication() {
     	basic(name = "localAuth") {
     		realm = "MMS5 Basic"
     		validate { credentials ->
-    			if (credentials.name == credentials.password) {
-    				UserIdPrincipal(credentials.name)
-    			} else {
-    				null
-    			}
+                if (credentials.name == credentials.password) UserIdPrincipal(credentials.name) else null
     		}
     	}
 

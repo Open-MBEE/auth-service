@@ -82,9 +82,10 @@ class ConsulPlugin {
 }
 
 // TODO: Remove when unnecessary?
-open class CustomHostnameVerifier: HostnameVerifier {
+open class CustomHostnameVerifier : HostnameVerifier {
     override fun verify(hostname: String?, session: SSLSession?): Boolean {
         return true
     }
+
     companion object HostnameVerifier : CustomHostnameVerifier()
 }

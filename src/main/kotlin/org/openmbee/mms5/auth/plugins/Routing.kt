@@ -2,10 +2,10 @@ package org.openmbee.mms5.auth.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.routing.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.response.*
+import io.ktor.routing.*
 import org.openmbee.mms5.auth.UserDetailsPrincipal
 import java.util.*
 

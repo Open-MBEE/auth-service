@@ -2,8 +2,12 @@ package org.openmbee.mms5.auth
 
 import io.ktor.auth.*
 import java.util.*
-import javax.naming.*
-import javax.naming.directory.*
+import javax.naming.Context
+import javax.naming.NamingEnumeration
+import javax.naming.NamingException
+import javax.naming.directory.InitialDirContext
+import javax.naming.directory.SearchControls
+import javax.naming.directory.SearchResult
 
 data class UserDetailsPrincipal(val name: String, val groups: List<String?>) : Principal
 
