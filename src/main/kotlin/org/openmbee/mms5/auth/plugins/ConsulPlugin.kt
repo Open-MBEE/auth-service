@@ -56,6 +56,7 @@ class ConsulPlugin {
 
             val agentClient = getConsulClient(configuration.consulUrl, configuration.consulToken).agentClient()
             val service = ImmutableRegistration.builder()
+                    .id(configuration.consulServiceName)
                     .name(configuration.consulServiceName)
                     .port(configuration.consulServicePort)
                     .check(Registration.RegCheck.ttl(300L))
