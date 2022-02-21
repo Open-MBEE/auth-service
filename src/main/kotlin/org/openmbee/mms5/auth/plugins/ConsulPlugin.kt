@@ -7,9 +7,11 @@ import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.*
+import java.security.SecureRandom
+import java.security.cert.CertificateException
+import java.security.cert.X509Certificate
 import java.util.*
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.SSLSession
+import javax.net.ssl.*
 
 
 fun Application.registerService() {
@@ -69,8 +71,13 @@ class ConsulPlugin {
         }
 
         fun getConsulClient(consulUrl: String, consulToken: String): Consul {
+            val sslContext = SSLContext.getInstance("SSL")
+            sslContext.init(null, trustAllCerts, SecureRandom())
+
             return Consul.builder()
                     .withUrl(consulUrl)
+                    .withSslContext(sslContext)
+                    .withTrustManager(trustAllCerts[0] as X509TrustManager?)
                     .withHostnameVerifier(CustomHostnameVerifier)
                     .withTokenAuth(consulToken)
                     .build()
@@ -86,3 +93,19 @@ open class CustomHostnameVerifier : HostnameVerifier {
 
     companion object HostnameVerifier : CustomHostnameVerifier()
 }
+
+val trustAllCerts = arrayOf<TrustManager>(
+        object : X509TrustManager {
+            @Throws(CertificateException::class)
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+            }
+
+            @Throws(CertificateException::class)
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+            }
+
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return arrayOf()
+            }
+        }
+)
