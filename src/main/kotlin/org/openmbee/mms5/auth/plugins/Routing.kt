@@ -36,8 +36,9 @@ fun Application.configureRouting() {
                 call.respond(hashMapOf("token" to token))
             }
 
-            get("/groups/{user}") {
+            get("/groups") {
                 val ldapConfigValues = getLdapConfValues(environment.config)
+                val principal = call.principal<UserDetailsPrincipal>()!!
 
                 val serviceAccount = UserPasswordCredential(
                     environment.config.property("ldap.service_account.name").getString(),
@@ -50,7 +51,7 @@ fun Application.configureRouting() {
                     ldapConfigValues.base,
                     ldapConfigValues.groupAttribute,
                     ldapConfigValues.groupSearch.format(
-                        ldapConfigValues.userDnPattern.format(ldapEscape(call.parameters["user"]!!))
+                        ldapConfigValues.userDnPattern.format(ldapEscape(principal.name))
                     )
                 )
                 call.respond(hashMapOf("groups" to userGroups?.groups))

@@ -11,23 +11,45 @@ ktor {
 
 jwt {
     domain = "https://jwt-provider-domain/"
+    domain = ${?JWT_DOMAIN}
     audience = "jwt-audience"
-    realm = "MMS5 Auth Service"
+    audience = ${?JWT_AUDIENCE}
+    realm = "MMS5 Microservices"
+    realm = ${?JWT_REALM}
     secret = "test1234"
+    secret = ${?JWT_SECRET}
 }
 
 ldap {
     location = "ldap://ldap.openmbee.org:636"
-    pattern = "uid=%s,ou=users"
+    location = ${?LDAP_LOCATION}
+    base = "dc=openmbee,dc=org"
+    base = ${?LDAP_BASE}
+    userPattern = "uid=%s,ou=users"
+    userPattern = ${?LDAP_USER_PATTERN}
+    groupSearchFilter = "(&(objectclass=group)(uniqueMember=%s))"
+    groupSearchFilter = ${?LDAP_GROUP_SEARCH_FILTER}
+    groupAttribute = "cn"
+    groupAttribute = ${?LDAP_GROUP_ATTRIBUTE}
+    service_account {
+        name = ""
+        pass = ""
+    }
 }
 
 consul {
     enabled = false
+    enabled = ${?CONSUL_ENABLED}
     service {
-        url = "https://consul-server-0:8501"
-        token = "123456"
+        url = "http://localhost:8500"
+        url = ${?CONSUL_SERVICE_URL}
+        token = ""
+        token = ${?CONSUL_SERVICE_TOKEN}
         name = "auth-service"
+        name = ${?CONSUL_SERVICE_NAME}
         port = 8080
+        port = ${?CONSUL_SERVICE_PORT}
         tags = ["L0", "authentication"]
+        tags = ${?CONSUL_SERVICE_TAGS}
     }
 }
