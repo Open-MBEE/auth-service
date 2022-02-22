@@ -4,13 +4,17 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.application.*
 import io.ktor.auth.*
+import io.ktor.features.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.openmbee.mms5.auth.UserDetailsPrincipal
+import org.openmbee.mms5.auth.ldapAuthenticate
+import org.openmbee.mms5.auth.ldapEscape
 import java.util.*
 
 
 fun Application.configureRouting() {
+    install(CallLogging)
     routing {
         get("/") {
             call.respondText("Hello World!")
@@ -30,6 +34,26 @@ fun Application.configureRouting() {
                     .withExpiresAt(Date(System.currentTimeMillis() + 60000))
                     .sign(Algorithm.HMAC256(secret))
                 call.respond(hashMapOf("token" to token))
+            }
+
+            get("/groups/{user}") {
+                val ldapConfigValues = getLdapConfValues(environment.config)
+
+                val serviceAccount = UserPasswordCredential(
+                    environment.config.property("ldap.service_account.name").getString(),
+                    environment.config.property("ldap.service_account.pass").getString()
+                )
+                val userGroups = ldapAuthenticate(
+                    serviceAccount,
+                    environment.config.propertyOrNull("ldap.location")?.getString() ?: "",
+                    ldapConfigValues.userDnPattern,
+                    ldapConfigValues.base,
+                    ldapConfigValues.groupAttribute,
+                    ldapConfigValues.groupSearch.format(
+                        ldapConfigValues.userDnPattern.format(ldapEscape(call.parameters["user"]!!))
+                    )
+                )
+                call.respond(hashMapOf("groups" to userGroups?.groups))
             }
         }
     }

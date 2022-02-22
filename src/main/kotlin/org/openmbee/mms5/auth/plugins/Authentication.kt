@@ -5,16 +5,12 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
-import org.openmbee.mms5.auth.ldapAuthenticate
-import org.openmbee.mms5.auth.ldapEscape
+import io.ktor.auth.ldap.*
+import io.ktor.config.*
 
 
 fun Application.configureAuthentication() {
-    val ldapServerLocation = environment.config.propertyOrNull("ldap.location")?.getString() ?: ""
-    val ldapBase = environment.config.propertyOrNull("ldap.base")?.getString() ?: ""
-    val ldapUserDnPattern = (environment.config.propertyOrNull("ldap.userPattern")?.getString() + "," + ldapBase)
-    val ldapGroupAttribute = environment.config.propertyOrNull("ldap.groupAttribute")?.getString() ?: ""
-    val ldapGroupSearch = environment.config.propertyOrNull("ldap.groupSearchFilter")?.getString() ?: ""
+    val ldapConfigValues = getLdapConfValues(environment.config)
 
     authentication {
         basic(name = "localAuth") {
@@ -28,12 +24,9 @@ fun Application.configureAuthentication() {
             realm = "MMS5 LDAP"
             validate { credential ->
                 ldapAuthenticate(
-                        credential,
-                        ldapServerLocation,
-                        ldapUserDnPattern,
-                        ldapBase,
-                        ldapGroupAttribute,
-                        ldapGroupSearch.format(ldapUserDnPattern.format(ldapEscape(credential.name)))
+                    credential,
+                    ldapConfigValues.serverLocation,
+                    ldapConfigValues.userDnPattern
                 )
             }
         }
@@ -54,4 +47,27 @@ fun Application.configureAuthentication() {
             }
         }
     }
+}
+
+data class LdapConfig(
+    val serverLocation: String,
+    val base: String,
+    val userDnPattern: String,
+    val groupAttribute: String,
+    val groupSearch: String
+)
+
+fun getLdapConfValues(config: ApplicationConfig): LdapConfig {
+    val ldapServerLocation = config.propertyOrNull("ldap.location")?.getString() ?: ""
+    val ldapBase = config.propertyOrNull("ldap.base")?.getString() ?: ""
+    val ldapUserDnPattern = (config.propertyOrNull("ldap.userPattern")?.getString() + "," + ldapBase)
+    val ldapGroupAttribute = config.propertyOrNull("ldap.groupAttribute")?.getString() ?: ""
+    val ldapGroupSearch = config.propertyOrNull("ldap.groupSearchFilter")?.getString() ?: ""
+    return LdapConfig(
+        ldapServerLocation,
+        ldapBase,
+        ldapUserDnPattern,
+        ldapGroupAttribute,
+        ldapGroupSearch
+    )
 }
