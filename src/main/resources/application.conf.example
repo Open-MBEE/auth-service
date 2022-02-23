@@ -27,13 +27,15 @@ ldap {
     base = ${?LDAP_BASE}
     userPattern = "uid=%s,ou=users"
     userPattern = ${?LDAP_USER_PATTERN}
-    groupSearchFilter = "(&(objectclass=group)(uniqueMember=%s))"
+    groupSearchFilter = "(&(objectclass=group)(uniqueMember=%s)(|(%s)))"
     groupSearchFilter = ${?LDAP_GROUP_SEARCH_FILTER}
     groupAttribute = "cn"
     groupAttribute = ${?LDAP_GROUP_ATTRIBUTE}
-    service_account {
-        name = ""
-        pass = ""
+    groupStore {
+        uri = "http://localhost:8081/bigdata/namespace/kb/sparql"
+        uri = ${?LDAP_GROUP_STORE_URI}
+        context = "https://mms.openmbee.org/demo/"
+        context = ${?LDAP_GROUP_STORE_CONTEXT}
     }
 }
 

@@ -80,7 +80,8 @@ fun Application.configureAuthentication() {
                 val groupFilterPrefix = ldapConfigValues.groupAttribute + "="
 
                 println(ldapConfigValues.groupSearch
-                    .format(ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)), groupFilterPrefix + bindings.joinToString(")($groupFilterPrefix"))
+                    .format(ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)), groupFilterPrefix +
+                            bindings.joinToString(")($groupFilterPrefix"))
                 )
 
                 ldapAuthenticate(
@@ -90,7 +91,8 @@ fun Application.configureAuthentication() {
                     ldapConfigValues.base,
                     ldapConfigValues.groupAttribute,
                     ldapConfigValues.groupSearch
-                        .format(ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)), groupFilterPrefix + bindings.joinToString(")($groupFilterPrefix"))
+                        .format(ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)), groupFilterPrefix +
+                                bindings.joinToString(")($groupFilterPrefix"))
                 )
             }
         }
