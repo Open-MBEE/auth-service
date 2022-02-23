@@ -66,7 +66,7 @@ fun ldapAuthenticate(
         sc.returningAttributes = arrayOf(groupAttribute)
         sc.searchScope = SearchControls.SUBTREE_SCOPE
 
-        val resultList = this.search(ldapBase, groupFilter, sc).mapAttrToString(groupAttribute)
+        val resultList: List<String?> = this.search(ldapBase, groupFilter, sc).mapAttrToString(groupAttribute) ?: emptyList()
         UserDetailsPrincipal(it.name, resultList)
     }
 }
