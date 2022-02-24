@@ -9,7 +9,7 @@ import javax.naming.directory.InitialDirContext
 import javax.naming.directory.SearchControls
 import javax.naming.directory.SearchResult
 
-data class UserDetailsPrincipal(val name: String, val groups: List<String?>) : Principal
+data class UserDetailsPrincipal(val name: String, val groups: List<String>) : Principal
 
 /**
  * Do LDAP authentication and verify [credential] by [doVerify] function
@@ -66,13 +66,13 @@ fun ldapAuthenticate(
         sc.returningAttributes = arrayOf(groupAttribute)
         sc.searchScope = SearchControls.SUBTREE_SCOPE
 
-        val resultList: List<String?> = this.search(ldapBase, groupFilter, sc).mapAttrToString(groupAttribute) ?: emptyList()
+        val resultList: List<String> = this.search(ldapBase, groupFilter, sc).mapAttrToString(groupAttribute) ?: emptyList()
         UserDetailsPrincipal(it.name, resultList)
     }
 }
 
-private fun <T> NamingEnumeration<T>.mapAttrToString(attrString: String): List<String?> {
-    val newList = mutableListOf<String?>()
+private fun <T> NamingEnumeration<T>.mapAttrToString(attrString: String): List<String> {
+    val newList = mutableListOf<String>()
     while (this.hasMore()) {
         val sr = this.next() as SearchResult
         newList.add(sr.nameInNamespace)
