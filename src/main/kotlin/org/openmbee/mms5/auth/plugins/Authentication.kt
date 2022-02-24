@@ -41,20 +41,13 @@ fun Application.configureAuthentication() {
                 val sparql =
                     """
                         prefix mms: <https://mms.openmbee.org/rdf/ontology/>
-
                         base <$rootContext>
                         prefix m: <>
                         prefix m-graph: <graphs/>
-
-                        select distinct * from m-graph:AccessControl.Agents {
-                        	?group a mms:Group ;
-                        		mms:id ?groupId ;
-                        		mms:domain ?groupDomain ;
-                        		.
-
-                        	values ?groupDomain {
-                        		"dir.jpl.nasa.gov"
-                        	}
+                        select ?dn from m-graph:AccessControl.Agents {
+                            ?group a mms:LdapGroup ;
+                            mms:id ?dn ;
+                            .
                         }
                     """.trimIndent()
 
@@ -71,17 +64,20 @@ fun Application.configureAuthentication() {
                 val bindings: MutableList<String> =
                     responseJson["results"]!!.jsonObject["bindings"]!!.jsonArray.map { jsonElement ->
                         val jsonObject = jsonElement.jsonObject
-                        return@map jsonObject["groupId"]!!.jsonObject["value"].toString().removeSurrounding("\"")
+                        val dn = jsonObject["dn"]!!.jsonObject["value"]
+                            .toString()
+                            .removeSurrounding("\"")
+                            .removePrefix("ldap/")
+                            .split(",")
+                        return@map dn[0]
                     } as MutableList<String>
                 if (bindings.isEmpty()) {
-                    bindings.add("everyone")
+                    bindings.add("cn=everyone")
                 }
 
-                val groupFilterPrefix = ldapConfigValues.groupAttribute + "="
-
-                println(ldapConfigValues.groupSearch
-                    .format(ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)), groupFilterPrefix +
-                            bindings.joinToString(")($groupFilterPrefix"))
+                println(ldapConfigValues.groupSearch.format(
+                    ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)),
+                    bindings.joinToString(")("))
                 )
 
                 ldapAuthenticate(
@@ -90,9 +86,9 @@ fun Application.configureAuthentication() {
                     ldapConfigValues.userDnPattern,
                     ldapConfigValues.base,
                     ldapConfigValues.groupAttribute,
-                    ldapConfigValues.groupSearch
-                        .format(ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)), groupFilterPrefix +
-                                bindings.joinToString(")($groupFilterPrefix"))
+                    ldapConfigValues.groupSearch.format(
+                        ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)),
+                        bindings.joinToString(")("))
                 )
             }
         }

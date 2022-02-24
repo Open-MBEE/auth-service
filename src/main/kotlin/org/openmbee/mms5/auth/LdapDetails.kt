@@ -75,9 +75,7 @@ private fun <T> NamingEnumeration<T>.mapAttrToString(attrString: String): List<S
     val newList = mutableListOf<String?>()
     while (this.hasMore()) {
         val sr = this.next() as SearchResult
-        val attrs = sr.attributes
-        val attr = attrs[attrString]
-        newList.add(attr.toString().drop(4))
+        newList.add(sr.nameInNamespace)
     }
     return newList
 }
