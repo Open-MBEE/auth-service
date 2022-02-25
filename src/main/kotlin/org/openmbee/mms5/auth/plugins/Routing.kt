@@ -11,7 +11,6 @@ import io.ktor.util.*
 import org.openmbee.mms5.auth.UserDetailsPrincipal
 import java.util.*
 
-
 @OptIn(InternalAPI::class)
 fun Application.configureRouting() {
     install(CallLogging)

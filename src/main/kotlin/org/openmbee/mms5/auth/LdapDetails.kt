@@ -66,12 +66,12 @@ fun ldapAuthenticate(
         sc.returningAttributes = arrayOf(groupAttribute)
         sc.searchScope = SearchControls.SUBTREE_SCOPE
 
-        val resultList: List<String> = this.search(ldapBase, groupFilter, sc).mapAttrToString(groupAttribute) ?: emptyList()
+        val resultList: List<String> = this.search(ldapBase, groupFilter, sc).mapAttrToString()
         UserDetailsPrincipal(it.name, resultList)
     }
 }
 
-private fun <T> NamingEnumeration<T>.mapAttrToString(attrString: String): List<String> {
+private fun <T> NamingEnumeration<T>.mapAttrToString(): List<String> {
     val newList = mutableListOf<String>()
     while (this.hasMore()) {
         val sr = this.next() as SearchResult
