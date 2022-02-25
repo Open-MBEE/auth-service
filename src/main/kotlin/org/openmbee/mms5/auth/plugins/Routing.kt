@@ -41,7 +41,7 @@ fun Application.configureRouting() {
             }
         }
 
-        authenticate("JWTAuth") {
+        authenticate("jwtAuth") {
             get("/check") {
                 val user = call.principal<UserDetailsPrincipal>()!!
                 call.respond(hashMapOf("user" to user))
