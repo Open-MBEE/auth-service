@@ -9,15 +9,15 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import org.openmbee.mms5.auth.ldapAuthenticate
-import org.openmbee.mms5.auth.ldapEscape
 import io.ktor.config.*
 import io.ktor.http.*
 import io.ktor.util.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
-
+import org.openmbee.mms5.auth.UserDetailsPrincipal
+import org.openmbee.mms5.auth.ldapAuthenticate
+import org.openmbee.mms5.auth.ldapEscape
 
 @OptIn(InternalAPI::class)
 fun Application.configureAuthentication() {
@@ -56,7 +56,7 @@ fun Application.configureAuthentication() {
                         append(HttpHeaders.Accept, ContentType.Application.Json)
                     }
                     contentType(ContentType("application", "sparql-query"))
-                    body=sparql
+                    body = sparql
                 }
 
                 val responseText = response.receive<String>()
@@ -75,9 +75,11 @@ fun Application.configureAuthentication() {
                     bindings.add("cn=everyone")
                 }
 
-                println(ldapConfigValues.groupSearch.format(
-                    ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)),
-                    bindings.joinToString(")("))
+                println(
+                    ldapConfigValues.groupSearch.format(
+                        ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)),
+                        bindings.joinToString(")(")
+                    )
                 )
 
                 ldapAuthenticate(
@@ -88,12 +90,13 @@ fun Application.configureAuthentication() {
                     ldapConfigValues.groupAttribute,
                     ldapConfigValues.groupSearch.format(
                         ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)),
-                        bindings.joinToString(")("))
+                        bindings.joinToString(")(")
+                    )
                 )
             }
         }
 
-        jwt {
+        jwt("jwtAuth") {
             val jwtAudience = environment.config.property("jwt.audience").getString()
             val issuer = environment.config.property("jwt.domain").getString()
             val secret = environment.config.property("jwt.secret").getString()
@@ -105,7 +108,12 @@ fun Application.configureAuthentication() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
+                if (credential.payload.audience.contains(jwtAudience)) {
+                    UserDetailsPrincipal(
+                        credential.payload.claims["username"]?.asString() ?: "",
+                        credential.payload.claims["groups"]?.asList("".javaClass) ?: emptyList()
+                    )
+                } else null
             }
         }
     }
