@@ -29,7 +29,6 @@ fun Application.configureRouting() {
                 val secret = environment.config.property("jwt.secret").getString()
 
                 val expires = Date(System.currentTimeMillis() + (1 * 24 * 60 * 60 * 1000))
-                println(expires)
                 val token = JWT.create()
                     .withAudience(jwtAudience)
                     .withIssuer(issuer)
