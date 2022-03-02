@@ -16,10 +16,6 @@ fun Application.configureRouting() {
     install(CallLogging)
 
     routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
-
         authenticate("ldapAuth") {
             get("/login") {
                 val principal = call.principal<UserDetailsPrincipal>()!!
@@ -39,9 +35,12 @@ fun Application.configureRouting() {
             }
         }
 
-        authenticate("jwtAuth") {
+        authenticate("jwtAuth", optional = true) {
+            get("/") {
+                call.respondText("Hello World!")
+            }
             get("/check") {
-                val user = call.principal<UserDetailsPrincipal>()!!
+                val user = call.principal<UserDetailsPrincipal>()
                 call.respond(hashMapOf("user" to user))
             }
         }
