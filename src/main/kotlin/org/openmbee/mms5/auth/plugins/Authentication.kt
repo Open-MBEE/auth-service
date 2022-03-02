@@ -51,6 +51,8 @@ fun Application.configureAuthentication() {
                         }
                     """.trimIndent()
 
+                log.debug(sparql)
+
                 val response = client.post<HttpStatement>(storeUri) {
                     headers {
                         append(HttpHeaders.Accept, ContentType.Application.Json)
@@ -60,6 +62,9 @@ fun Application.configureAuthentication() {
                 }
 
                 val responseText = response.receive<String>()
+
+                log.debug(responseText)
+
                 val responseJson = Json.parseToJsonElement(responseText).jsonObject
                 val bindings: MutableList<String> =
                     responseJson["results"]!!.jsonObject["bindings"]!!.jsonArray.map { jsonElement ->
@@ -75,7 +80,7 @@ fun Application.configureAuthentication() {
                     bindings.add("cn=everyone")
                 }
 
-                println(
+                log.info(
                     ldapConfigValues.groupSearch.format(
                         ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)),
                         bindings.joinToString(")(")
