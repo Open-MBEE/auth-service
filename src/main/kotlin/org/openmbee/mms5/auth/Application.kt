@@ -4,7 +4,6 @@ import io.ktor.application.*
 import org.openmbee.mms5.auth.plugins.configureAuthentication
 import org.openmbee.mms5.auth.plugins.configureContentNegotiation
 import org.openmbee.mms5.auth.plugins.configureRouting
-import org.openmbee.mms5.auth.plugins.registerService
 
 
 fun main(args: Array<String>): Unit =
@@ -15,7 +14,4 @@ fun Application.module() {
     configureContentNegotiation()
     configureAuthentication()
     configureRouting()
-    if (environment.config.propertyOrNull("consul.enabled")?.getString() == "true") {
-        registerService()
-    }
 }
