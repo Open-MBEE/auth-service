@@ -44,9 +44,9 @@ fun Application.configureAuthentication() {
                         base <$rootContext>
                         prefix m: <>
                         prefix m-graph: <graphs/>
-                        select ?dn from m-graph:AccessControl.Agents {
-                            ?group a mms:LdapGroup ;
-                            mms:id ?dn ;
+                        select ?groupId from m-graph:AccessControl.Agents {
+                            ?group a mms:Group ;
+                            mms:id ?groupId ;
                             .
                         }
                     """.trimIndent()
@@ -72,12 +72,12 @@ fun Application.configureAuthentication() {
                         val dn = jsonObject["dn"]!!.jsonObject["value"]
                             .toString()
                             .removeSurrounding("\"")
-                            .removePrefix("ldap/")
+                            .removePrefix(ldapConfigValues.groupNamespace)
                             .split(",")
                         return@map dn[0]
                     } as MutableList<String>
                 if (bindings.isEmpty()) {
-                    bindings.add("cn=everyone")
+                    bindings.add("cn=all.personnel")
                 }
 
                 log.info(
@@ -91,12 +91,14 @@ fun Application.configureAuthentication() {
                     credential,
                     ldapConfigValues.serverLocation,
                     ldapConfigValues.userDnPattern,
+                    ldapConfigValues.userNamespace,
                     ldapConfigValues.base,
                     ldapConfigValues.groupAttribute,
                     ldapConfigValues.groupSearch.format(
                         ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)),
                         bindings.joinToString(")(")
-                    )
+                    ),
+                    ldapConfigValues.groupNamespace
                 )
             }
         }
@@ -128,21 +130,27 @@ data class LdapConfig(
     val serverLocation: String,
     val base: String,
     val userDnPattern: String,
+    val userNamespace: String,
     val groupAttribute: String,
-    val groupSearch: String
+    val groupSearch: String,
+    val groupNamespace: String
 )
 
 fun getLdapConfValues(config: ApplicationConfig): LdapConfig {
     val ldapServerLocation = config.propertyOrNull("ldap.location")?.getString() ?: ""
     val ldapBase = config.propertyOrNull("ldap.base")?.getString() ?: ""
     val ldapUserDnPattern = (config.propertyOrNull("ldap.userPattern")?.getString() + "," + ldapBase)
+    val ldapUserNamespace = config.propertyOrNull("ldap.userNamespace")?.getString() ?: ""
     val ldapGroupAttribute = config.propertyOrNull("ldap.groupAttribute")?.getString() ?: ""
     val ldapGroupSearch = config.propertyOrNull("ldap.groupSearchFilter")?.getString() ?: ""
+    val ldapGroupNamespace = config.propertyOrNull("ldap.groupNamespace")?.getString() ?: ""
     return LdapConfig(
         ldapServerLocation,
         ldapBase,
         ldapUserDnPattern,
+        ldapUserNamespace,
         ldapGroupAttribute,
-        ldapGroupSearch
+        ldapGroupSearch,
+        ldapGroupNamespace
     )
 }

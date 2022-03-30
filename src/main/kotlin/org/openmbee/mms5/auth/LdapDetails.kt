@@ -57,25 +57,29 @@ fun ldapAuthenticate(
     credential: UserPasswordCredential,
     ldapServerURL: String,
     userDNFormat: String,
+    userNamespace: String,
     ldapBase: String,
     groupAttribute: String,
     groupFilter: String,
+    groupNamespace: String
 ): UserDetailsPrincipal? {
     return ldapAuthenticate(credential, ldapServerURL, userDNFormat) {
         val sc = SearchControls()
         sc.returningAttributes = arrayOf(groupAttribute)
         sc.searchScope = SearchControls.SUBTREE_SCOPE
 
-        val resultList: List<String> = this.search(ldapBase, groupFilter, sc).mapAttrToString()
-        UserDetailsPrincipal(it.name, resultList)
+        val resultList: List<String> = this.search(ldapBase, groupFilter, sc).mapAttrToString(groupAttribute, groupNamespace)
+        UserDetailsPrincipal(userNamespace + it.name, resultList)
     }
 }
 
-private fun <T> NamingEnumeration<T>.mapAttrToString(): List<String> {
+private fun <T> NamingEnumeration<T>.mapAttrToString(attrString: String, namespace: String): List<String> {
     val newList = mutableListOf<String>()
     while (this.hasMore()) {
         val sr = this.next() as SearchResult
-        newList.add(sr.nameInNamespace)
+        val attrs = sr.attributes
+        val attr = attrs[attrString]
+        newList.add(namespace + attr.toString().drop(4))
     }
     return newList
 }
