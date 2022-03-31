@@ -69,15 +69,15 @@ fun Application.configureAuthentication() {
                 val bindings: MutableList<String> =
                     responseJson["results"]!!.jsonObject["bindings"]!!.jsonArray.map { jsonElement ->
                         val jsonObject = jsonElement.jsonObject
-                        val dn = jsonObject["dn"]!!.jsonObject["value"]
+                        val groupId = jsonObject["groupId"]!!.jsonObject["value"]
                             .toString()
                             .removeSurrounding("\"")
-                            .removePrefix(ldapConfigValues.groupNamespace)
+                            .replace(ldapConfigValues.groupNamespace, ldapConfigValues.groupAttribute + "=")
                             .split(",")
-                        return@map dn[0]
+                        return@map groupId[0]
                     } as MutableList<String>
                 if (bindings.isEmpty()) {
-                    bindings.add("cn=all.personnel")
+                    bindings.add(ldapConfigValues.groupAttribute + "=all.personnel")
                 }
 
                 log.info(
