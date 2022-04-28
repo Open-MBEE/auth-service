@@ -27,10 +27,14 @@ ldap {
     base = ${?LDAP_BASE}
     userPattern = "uid=%s,ou=users"
     userPattern = ${?LDAP_USER_PATTERN}
+    userNamespace = "ldap/user/"
+    userNamespace = ${?LDAP_USER_NAMESPACE}
     groupSearchFilter = "(&(objectclass=group)(uniqueMember=%s)(|(%s)))"
     groupSearchFilter = ${?LDAP_GROUP_SEARCH_FILTER}
     groupAttribute = "cn"
     groupAttribute = ${?LDAP_GROUP_ATTRIBUTE}
+    groupNamespace = "ldap/group/"
+    groupNamespace = ${?LDAP_GROUP_NAMESPACE}
     groupStore {
         uri = "http://localhost:8081/bigdata/namespace/kb/sparql"
         uri = ${?LDAP_GROUP_STORE_URI}
