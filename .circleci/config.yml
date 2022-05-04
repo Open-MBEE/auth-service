@@ -32,6 +32,7 @@ jobs:
       executor: openjdk_executor
       working_directory: /home/circleci/mms5-auth-service
       steps:
+          - setup_remote_docker
           - attach_workspace:
                 at: ~/
           - run:
@@ -44,8 +45,12 @@ jobs:
       executor: openjdk_executor
       working_directory: /home/circleci/mms
       steps:
+          - setup_remote_docker
           - attach_workspace:
                 at: ~/
+          - run:
+                name: Start Docker
+                command: systemctl start docker
           - run:
                 name: Login to Dockerhub
                 command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
