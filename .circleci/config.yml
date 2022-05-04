@@ -1,0 +1,71 @@
+version: 2.1
+orbs:
+  node: circleci/node@1.1.6
+executors:
+    openjdk_executor:
+        docker:
+            - image: circleci/17.0.2-jdk-slim
+        environment:
+            _JAVA_OPTIONS: "-Xmx4g"
+            GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+jobs:
+  build_and_test:
+    executor:
+      name: node/default
+    working_directory: /home/circleci/mms5-auth-service
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: 
+          name: "Build image"
+          command: |
+            cp src/main/resources/application.conf.example ./src/main/resources/application.conf
+            docker build .
+
+      - persist_to_workspace:
+            root: /home/circleci/
+            paths:
+                - mms5-auth-service/*
+
+  deploy_snapshot:
+      executor: openjdk_executor
+      working_directory: /home/circleci/mms5-auth-service
+      steps:
+          - attach_workspace:
+                at: ~/
+          - run:
+                name: Deploy snapshot to dockerhub
+                command: docker push -u=$DOCKERHUB_USERNAME -p=$DOCKERHUB_PASSWORD openmbee/mms5-auth-service:$CIRCLE_TAG-SNAPSHOT
+  deploy_release:
+      executor: openjdk_executor
+      working_directory: /home/circleci/mms
+      steps:
+          - attach_workspace:
+                at: ~/
+          - run:
+                name: Deploy release to dockerhub
+                command: docker push -u=$DOCKERHUB_USERNAME -p=$DOCKERHUB_PASSWORD openmbee/mms5-auth-service:$CIRCLE_TAG
+
+workflows:
+    version: 2
+    build-test-deploy:
+      jobs:
+        - build_and_test:
+              filters:
+                  tags:
+                      only: /[0-9.]+(-(a|b|rc)[0-9]+)?/
+        - deploy_snapshot:
+              requires:
+                  - build_and_test
+              filters:
+                  branches:
+                      only: /((release|hotfix|support)/[0-9.]+(-(a|b|rc)[0-9]+)?|develop)/
+        - deploy_release:
+              requires:
+                  - build_and_test
+              filters:
+                  tags:
+                      only: /[0-9.]+(-(a|b|rc)[0-9]+)?/
+                  branches:
+                      ignore: /.*/
