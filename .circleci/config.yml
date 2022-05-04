@@ -39,7 +39,7 @@ jobs:
                 command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           - run:
                 name: Deploy snapshot to Dockerhub
-                command: docker push openmbee/mms5-auth-service:$CIRCLE_TAG-SNAPSHOT
+                command: docker push openmbee/mms5-auth-service:${CIRCLE_TAG}-SNAPSHOT
   deploy_release:
       executor: openjdk_executor
       working_directory: /home/circleci/mms
@@ -51,7 +51,7 @@ jobs:
                 command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           - run:
                 name: Deploy release to dockerhub
-                command: docker push openmbee/mms5-auth-service:$CIRCLE_TAG
+                command: docker push openmbee/mms5-auth-service:${CIRCLE_TAG}
 
 workflows:
     version: 2
