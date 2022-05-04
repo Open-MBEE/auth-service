@@ -4,7 +4,7 @@ orbs:
 executors:
     openjdk_executor:
         docker:
-            - image: circleci/17.0.2-jdk-slim
+            - image: cimg/openjdk:17.0.3-node
         environment:
             _JAVA_OPTIONS: "-Xmx4g"
             GRADLE_OPTS: "-Dorg.gradle.daemon=false"
