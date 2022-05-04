@@ -35,8 +35,11 @@ jobs:
           - attach_workspace:
                 at: ~/
           - run:
-                name: Deploy snapshot to dockerhub
-                command: docker push -u=$DOCKERHUB_USERNAME -p=$DOCKERHUB_PASSWORD openmbee/mms5-auth-service:$CIRCLE_TAG-SNAPSHOT
+                name: Login to Dockerhub
+                command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          - run:
+                name: Deploy snapshot to Dockerhub
+                command: docker push openmbee/mms5-auth-service:$CIRCLE_TAG-SNAPSHOT
   deploy_release:
       executor: openjdk_executor
       working_directory: /home/circleci/mms
@@ -44,8 +47,11 @@ jobs:
           - attach_workspace:
                 at: ~/
           - run:
+                name: Login to Dockerhub
+                command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          - run:
                 name: Deploy release to dockerhub
-                command: docker push -u=$DOCKERHUB_USERNAME -p=$DOCKERHUB_PASSWORD openmbee/mms5-auth-service:$CIRCLE_TAG
+                command: docker push openmbee/mms5-auth-service:$CIRCLE_TAG
 
 workflows:
     version: 2
