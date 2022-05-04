@@ -16,23 +16,20 @@ jobs:
     working_directory: /home/circleci/mms5-auth-service
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+            docker_layer_caching: true
       - run: 
-          name: "Build image"
-          command: |
-            cp src/main/resources/application.conf.example ./src/main/resources/application.conf
-            docker build .
-
-      - persist_to_workspace:
-            root: /home/circleci/
-            paths:
-                - mms5-auth-service/*
+            name: "Build image"
+            command: |
+              cp src/main/resources/application.conf.example ./src/main/resources/application.conf
+              docker build .
 
   deploy_snapshot:
       executor: openjdk_executor
       working_directory: /home/circleci/mms5-auth-service
       steps:
-          - setup_remote_docker
+          - setup_remote_docker:
+                docker_layer_caching: true
           - attach_workspace:
                 at: ~/
           - run:
@@ -45,7 +42,8 @@ jobs:
       executor: openjdk_executor
       working_directory: /home/circleci/mms
       steps:
-          - setup_remote_docker
+          - setup_remote_docker:
+                docker_layer_caching: true
           - attach_workspace:
                 at: ~/
           - run:
