@@ -75,6 +75,9 @@ jobs:
           - run:
                 name: Deploy release to dockerhub
                 command: docker push openmbee/mms5-auth-service:${CIRCLE_TAG}
+          - run:
+                name: Deploy release as latest to dockerhub
+                command: docker push openmbee/mms5-auth-service:latest
 
 workflows:
     version: 2
