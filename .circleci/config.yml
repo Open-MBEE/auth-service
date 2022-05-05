@@ -22,7 +22,7 @@ jobs:
             name: "Build image"
             command: |
               cp src/main/resources/application.conf.example ./src/main/resources/application.conf
-              docker build .
+              docker build -t openmbee/mms5-auth-service:latest .
 
   deploy_snapshot:
       executor: openjdk_executor
@@ -35,6 +35,9 @@ jobs:
           - run:
                 name: Login to Dockerhub
                 command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          - run:
+              name: Tag docker image
+              command: docker tag openmbee/mms5-auth-service:latest openmbee/mms5-auth-service:${CIRCLE_BRANCH}-SNAPSHOT
           - run:
                 name: Deploy snapshot to Dockerhub
                 command: docker push openmbee/mms5-auth-service:${CIRCLE_BRANCH}-SNAPSHOT
@@ -52,6 +55,9 @@ jobs:
           - run:
                 name: Login to Dockerhub
                 command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          - run:
+              name: Tag docker image
+              command: docker tag openmbee/mms5-auth-service:latest openmbee/mms5-auth-service:${CIRCLE_TAG}
           - run:
                 name: Deploy release to dockerhub
                 command: docker push openmbee/mms5-auth-service:${CIRCLE_TAG}
