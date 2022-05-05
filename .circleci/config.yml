@@ -48,10 +48,10 @@ jobs:
                 command: docker load -i mms5-auth-service.tar
           - run:
                 name: Tag docker image
-                command: docker tag openmbee/mms5-auth-service:latest openmbee/mms5-auth-service:${CIRCLE_BRANCH}-SNAPSHOT
+                command: docker tag openmbee/mms5-auth-service:latest openmbee/mms5-auth-service:${CIRCLE_BRANCH#*/}-SNAPSHOT
           - run:
                 name: Deploy snapshot to Dockerhub
-                command: docker push openmbee/mms5-auth-service:${CIRCLE_BRANCH}-SNAPSHOT
+                command: docker push openmbee/mms5-auth-service:${CIRCLE_BRANCH#*/}-SNAPSHOT
   deploy_release:
       executor: openjdk_executor
       working_directory: /home/circleci/mms
