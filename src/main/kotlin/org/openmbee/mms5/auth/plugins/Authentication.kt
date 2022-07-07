@@ -48,6 +48,7 @@ fun Application.configureAuthentication() {
                             ?group a mms:Group ;
                             mms:id ?groupId ;
                             .
+                            filter regex(?groupId, "$ldapConfigValues.groupNamespace", "i")
                         }
                     """.trimIndent()
 
