@@ -11,5 +11,5 @@ jobs:
     - uses: actions/add-to-project@v0.4.0
       with:
         project-url: https://github.com/orgs/Open-MBEE/projects/2
-        github-token: kCcGUrq54X9Qlr9JbbqbI1LTi9D2iUuIevAWBeGsXF4
+        github-token: ${{ secrets.ADD_TO_PROJECT_ACTION_PAT }}
 
