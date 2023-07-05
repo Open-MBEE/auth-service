@@ -1,6 +1,6 @@
-=============
+=================
 MMS5 Auth Service
-=============
+=================
 
 This service currently allows MMS5 Service clients to authentication with an ldap server.
 
@@ -69,7 +69,7 @@ MMS5 Config Options
 
 
 Ldap Connection Configuration Options
----------------------
+--------------------------------------
 
   LDAP_LOCATION
     The ldap url
