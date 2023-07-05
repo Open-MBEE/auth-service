@@ -65,7 +65,7 @@ MMS5 Config Options
   LDAP_GROUP_NAMESPACE
     The namespace that'll be prepended to group name to create an iri
 
-    | `Default: ldap/group`
+    | `Default: ldap/group/`
 
 
 Ldap Connection Configuration Options
