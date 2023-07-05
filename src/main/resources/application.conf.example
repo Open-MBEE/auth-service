@@ -38,7 +38,7 @@ ldap {
     groupStore {
         uri = "http://localhost:8081/bigdata/namespace/kb/sparql"
         uri = ${?LDAP_GROUP_STORE_URI}
-        context = "https://mms.openmbee.org/demo/"
+        context = "http://layer1-service/"
         context = ${?LDAP_GROUP_STORE_CONTEXT}
     }
 }
