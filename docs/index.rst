@@ -2,7 +2,7 @@
 MMS5 Auth Service
 =================
 
-This service currently allows MMS5 Service clients to authentication with an ldap server.
+This service currently allows MMS5 Service clients to authenticate with an ldap server.
 
 Using the GET `/login` endpoint with basic auth will return a JWT bearer token that the client can then use with the rest of MMS5 Service endpoints. The username and groups indicated in the token are then used by MMS5 layer1 service for authorization. The same namespace and iri must match any policies defined in MMS5 layer1.
 
