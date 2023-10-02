@@ -13,6 +13,8 @@ fun Application.configureContentNegotiation() {
         method(HttpMethod.Put)
         method(HttpMethod.Delete)
         method(HttpMethod.Patch)
+        method(HttpMethod.Get)
+        method(HttpMethod.Post)
         header(HttpHeaders.Authorization)
         header(HttpHeaders.ContentType)
         anyHost() // @TODO: make configuration
