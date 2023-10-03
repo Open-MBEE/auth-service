@@ -17,7 +17,8 @@ fun Application.configureContentNegotiation() {
         method(HttpMethod.Post)
         header(HttpHeaders.Authorization)
         header(HttpHeaders.ContentType)
-        //allowCredentials = true
+        allowCredentials = true
+
         anyHost() // @TODO: make configuration
     }
     install(ContentNegotiation) {
