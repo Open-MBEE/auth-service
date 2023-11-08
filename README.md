@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/Open-MBEE/flexo-mms-auth-service.svg?style=shield)](https://circleci.com/gh/Open-MBEE/flexo-mms-auth-service)
+
 # Flexo MMS Auth Service
 
 This service currently allows Flexo MMS Service clients to authenticate with a ldap server.
