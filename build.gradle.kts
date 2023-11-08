@@ -10,8 +10,8 @@ plugins {
     kotlin("jvm") version "1.6.10"
 }
 
-group = "org.openmbee.mms5"
-version = "0.1.0-ALPHA"
+group = "org.openmbee.flexo.mms"
+version = "0.1.0"
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")

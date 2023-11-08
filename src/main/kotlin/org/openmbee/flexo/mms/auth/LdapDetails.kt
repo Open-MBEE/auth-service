@@ -1,4 +1,4 @@
-package org.openmbee.mms5.auth
+package org.openmbee.flexo.mms.auth
 
 import io.ktor.auth.*
 import java.util.*

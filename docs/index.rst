@@ -1,16 +1,16 @@
 =================
-MMS5 Auth Service
+Flexo MMS Auth Service
 =================
 
-This service currently allows MMS5 Service clients to authenticate with an ldap server.
+This service currently allows Flexo MMS Service clients to authenticate with an ldap server.
 
-Using the GET `/login` endpoint with basic auth will return a JWT bearer token that the client can then use with the rest of MMS5 Service endpoints. The username and groups indicated in the token are then used by MMS5 layer1 service for authorization. The same namespace and iri must match any policies defined in MMS5 layer1.
+Using the GET `/login` endpoint with basic auth will return a JWT bearer token that the client can then use with the rest of Flexo MMS Service endpoints. The username and groups indicated in the token are then used by Flexo MMS layer1 service for authorization. The same namespace and iri must match any policies defined in Flexo MMS layer1.
 
 Example token::
 
     {
         "aud": "jwt-audience",
-        "iss": "https://mms5.openmbee.org/",
+        "iss": "https://mms.openmbee.org/",
         "groups": [
             "ldap/group/some.group",
             "ldap/group/some.group2"
@@ -19,7 +19,7 @@ Example token::
         "username": "ldap/user/someuser"
     }
 
-Example policy with subject in MMS5 Layer1 quadstore::
+Example policy with subject in Flexo MMS Layer1 quadstore::
 
     prefix m-graph: <http://layer1-service/graphs/>
     prefix m-policy: <http://layer1-service/policies/>
@@ -32,7 +32,7 @@ Example policy with subject in MMS5 Layer1 quadstore::
             mms:scope <http://layer1-service/orgs/someorg/repos/somerepo> .
     }
 
-Because a user can belong to many groups in ldap, in order to minimize the amount of groups in the token, relevant groups need to be present in the MMS5 layer 1 quadstore first::
+Because a user can belong to many groups in ldap, in order to minimize the amount of groups in the token, relevant groups need to be present in the Flexo MMS layer 1 quadstore first::
 
     prefix mms: <https://mms.openmbee.org/rdf/ontology/>
     prefix m-graph: <http://layer1-service/graphs/>
@@ -44,16 +44,16 @@ Because a user can belong to many groups in ldap, in order to minimize the amoun
 
 Use environment variables for the options below.
 
-MMS5 Config Options
+Flexo MMS Config Options
 --------------------
 
   LDAP_GROUP_STORE_URI
-    The quadstore sparql endpoint that's also being used by MMS5 layer 1 service
+    The quadstore sparql endpoint that's also being used by Flexo MMS layer 1 service
 
     | `Default: http://localhost:8081/bigdata/namespace/kb/sparql`
 
   LDAP_GROUP_STORE_CONTEXT
-    The same context that's configured for MMS5 layer 1 service
+    The same context that's configured for Flexo MMS layer 1 service
 
     | `Default: http://layer1-service/`
 
@@ -115,9 +115,9 @@ Service Config Options
 
   JWT_REALM
 
-    | `Default: MMS5 Microservices`
+    | `Default: Flexo MMS Microservices`
 
   JWT_SECRET
-    This needs to be the same as what's configured for MMS5 Layer1 Service
+    This needs to be the same as what's configured for Flexo MMS Layer1 Service
 
     | `Default: test1234`

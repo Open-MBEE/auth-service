@@ -1,4 +1,4 @@
-package org.openmbee.mms5.auth.plugins
+package org.openmbee.flexo.mms.auth.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -15,9 +15,9 @@ import io.ktor.util.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
-import org.openmbee.mms5.auth.UserDetailsPrincipal
-import org.openmbee.mms5.auth.ldapAuthenticate
-import org.openmbee.mms5.auth.ldapEscape
+import org.openmbee.flexo.mms.auth.UserDetailsPrincipal
+import org.openmbee.flexo.mms.auth.ldapAuthenticate
+import org.openmbee.flexo.mms.auth.ldapEscape
 
 @OptIn(InternalAPI::class)
 fun Application.configureAuthentication() {
@@ -25,14 +25,14 @@ fun Application.configureAuthentication() {
 
     authentication {
         basic(name = "localAuth") {
-            realm = "MMS5 Basic"
+            realm = "Flexo MMS Basic"
             validate { credentials ->
                 if (credentials.name == credentials.password) UserIdPrincipal(credentials.name) else null
             }
         }
 
         basic("ldapAuth") {
-            realm = "MMS5 LDAP"
+            realm = "Flexo MMS LDAP"
             validate { credential ->
                 val client = HttpClient(CIO)
 

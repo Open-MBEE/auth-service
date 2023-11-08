@@ -1,4 +1,4 @@
-package org.openmbee.mms5.auth.plugins
+package org.openmbee.flexo.mms.auth.plugins
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.*
