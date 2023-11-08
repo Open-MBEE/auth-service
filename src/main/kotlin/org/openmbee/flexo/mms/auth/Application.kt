@@ -1,6 +1,6 @@
 package org.openmbee.flexo.mms.auth
 
-import io.ktor.application.*
+import io.ktor.server.application.*
 import org.openmbee.flexo.mms.auth.plugins.configureAuthentication
 import org.openmbee.flexo.mms.auth.plugins.configureContentNegotiation
 import org.openmbee.flexo.mms.auth.plugins.configureRouting

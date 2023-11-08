@@ -1,22 +1,23 @@
 package org.openmbee.flexo.mms.auth.plugins
 
 import com.fasterxml.jackson.databind.SerializationFeature
-import io.ktor.application.*
-import io.ktor.features.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.http.*
-import io.ktor.jackson.*
+import io.ktor.serialization.jackson.*
 
 
 fun Application.configureContentNegotiation() {
     install(CORS) {
-        method(HttpMethod.Options)
-        method(HttpMethod.Put)
-        method(HttpMethod.Delete)
-        method(HttpMethod.Patch)
-        method(HttpMethod.Get)
-        method(HttpMethod.Post)
-        header(HttpHeaders.Authorization)
-        header(HttpHeaders.ContentType)
+        allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Delete)
+        allowMethod(HttpMethod.Patch)
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
         allowCredentials = true
 
         anyHost() // @TODO: make configuration

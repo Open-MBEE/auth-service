@@ -2,14 +2,14 @@ package org.openmbee.flexo.mms.auth.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.auth.jwt.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.config.*
+import io.ktor.server.config.*
 import io.ktor.http.*
 import io.ktor.util.*
 import kotlinx.serialization.json.Json
@@ -22,7 +22,7 @@ import org.openmbee.flexo.mms.auth.ldapEscape
 @OptIn(InternalAPI::class)
 fun Application.configureAuthentication() {
     val ldapConfigValues = getLdapConfValues(environment.config)
-
+    val environment = environment
     authentication {
         basic(name = "localAuth") {
             realm = "Flexo MMS Basic"
@@ -52,9 +52,9 @@ fun Application.configureAuthentication() {
                         }
                     """.trimIndent()
 
-                log.debug(sparql)
+                application.log.debug(sparql)
 
-                val response = client.post<HttpStatement>(storeUri) {
+                val response = client.post(storeUri) {
                     headers {
                         append(HttpHeaders.Accept, ContentType.Application.Json)
                     }
@@ -62,9 +62,9 @@ fun Application.configureAuthentication() {
                     body = sparql
                 }
 
-                val responseText = response.receive<String>()
+                val responseText = response.bodyAsText()
 
-                log.debug(responseText)
+                application.log.debug(responseText)
 
                 val responseJson = Json.parseToJsonElement(responseText).jsonObject
                 val bindings: MutableList<String> =
@@ -81,7 +81,7 @@ fun Application.configureAuthentication() {
                     bindings.add(ldapConfigValues.groupAttribute + "=all.personnel")
                 }
 
-                log.info(
+                application.log.info(
                     ldapConfigValues.groupSearch.format(
                         ldapConfigValues.userDnPattern.format(ldapEscape(credential.name)),
                         bindings.joinToString(")(")
