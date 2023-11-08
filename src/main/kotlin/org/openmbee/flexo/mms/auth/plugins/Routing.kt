@@ -1,4 +1,4 @@
-package org.openmbee.mms5.auth.plugins
+package org.openmbee.flexo.mms.auth.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -8,7 +8,7 @@ import io.ktor.features.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.*
-import org.openmbee.mms5.auth.UserDetailsPrincipal
+import org.openmbee.flexo.mms.auth.UserDetailsPrincipal
 import java.util.*
 
 @OptIn(InternalAPI::class)

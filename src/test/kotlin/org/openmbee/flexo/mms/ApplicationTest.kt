@@ -1,9 +1,9 @@
-package org.openmbee.mms5
+package org.openmbee.flexo.mms
 
 import io.ktor.http.*
 import kotlin.test.*
 import io.ktor.server.testing.*
-import org.openmbee.mms5.auth.plugins.*
+import org.openmbee.flexo.mms.auth.plugins.configureRouting
 
 class ApplicationTest {
     @Test
