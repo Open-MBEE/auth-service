@@ -39,7 +39,7 @@ jobs:
                 command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           - run:
                 name: Load docker image
-                command: docker load -i mms5-auth-service.tar
+                command: docker load -i flexo-mms-auth-service.tar
           - run:
                 name: Tag docker image
                 command: docker tag openmbee/flexo-mms-auth-service:latest openmbee/flexo-mms-auth-service:${CIRCLE_BRANCH#*/}-SNAPSHOT
