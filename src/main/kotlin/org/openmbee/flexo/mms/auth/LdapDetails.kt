@@ -1,6 +1,6 @@
 package org.openmbee.flexo.mms.auth
 
-import io.ktor.auth.*
+import io.ktor.server.auth.*
 import java.util.*
 import javax.naming.Context
 import javax.naming.NamingEnumeration
