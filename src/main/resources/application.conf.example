@@ -1,11 +1,11 @@
 ktor {
-    development = true
+    development = false
     deployment {
         port = 8080
         port = ${?PORT}
     }
     application {
-        modules = [ org.openmbee.mms5.auth.ApplicationKt.module ]
+        modules = [ org.openmbee.flexo.mms.auth.ApplicationKt.module ]
     }
 }
 
@@ -14,7 +14,7 @@ jwt {
     domain = ${?JWT_DOMAIN}
     audience = "jwt-audience"
     audience = ${?JWT_AUDIENCE}
-    realm = "MMS5 Microservices"
+    realm = "Flexo MMS Microservices"
     realm = ${?JWT_REALM}
     secret = "test1234"
     secret = ${?JWT_SECRET}
@@ -38,7 +38,7 @@ ldap {
     groupStore {
         uri = "http://localhost:8081/bigdata/namespace/kb/sparql"
         uri = ${?LDAP_GROUP_STORE_URI}
-        context = "https://mms.openmbee.org/demo/"
+        context = "http://layer1-service/"
         context = ${?LDAP_GROUP_STORE_CONTEXT}
     }
 }

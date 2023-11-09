@@ -6,29 +6,29 @@ jobs:
   build_and_test:
     executor:
       name: docker/docker
-    working_directory: /home/circleci/mms5-auth-service
+    working_directory: /home/circleci/flexo-mms-auth-service
     steps:
       - checkout
       - setup_remote_docker:
             docker_layer_caching: true
-      - run: 
+      - run:
             name: Build docker image
             command: |
               cp src/main/resources/application.conf.example ./src/main/resources/application.conf
-              docker build -t openmbee/mms5-auth-service:latest .
+              docker build -t openmbee/flexo-mms-auth-service:latest .
       - run:
             name: Export docker image
             command: |
-              docker save -o mms5-auth-service.tar openmbee/mms5-auth-service:latest
+              docker save -o flexo-mms-auth-service.tar openmbee/flexo-mms-auth-service:latest
       - persist_to_workspace:
             root: /home/circleci/
             paths:
-              - mms5-auth-service/*
+              - flexo-mms-auth-service/*
 
   deploy_snapshot:
       executor:
         name: docker/docker
-      working_directory: /home/circleci/mms5-auth-service
+      working_directory: /home/circleci/flexo-mms-auth-service
       steps:
           - setup_remote_docker:
                 docker_layer_caching: true
@@ -39,17 +39,17 @@ jobs:
                 command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           - run:
                 name: Load docker image
-                command: docker load -i mms5-auth-service.tar
+                command: docker load -i flexo-mms-auth-service.tar
           - run:
                 name: Tag docker image
-                command: docker tag openmbee/mms5-auth-service:latest openmbee/mms5-auth-service:${CIRCLE_BRANCH#*/}-SNAPSHOT
+                command: docker tag openmbee/flexo-mms-auth-service:latest openmbee/flexo-mms-auth-service:${CIRCLE_BRANCH#*/}-SNAPSHOT
           - run:
                 name: Deploy snapshot to Dockerhub
-                command: docker push openmbee/mms5-auth-service:${CIRCLE_BRANCH#*/}-SNAPSHOT
+                command: docker push openmbee/flexo-mms-auth-service:${CIRCLE_BRANCH#*/}-SNAPSHOT
   deploy_release:
       executor:
         name: docker/docker
-      working_directory: /home/circleci/mms5-auth-service
+      working_directory: /home/circleci/flexo-mms-auth-service
       steps:
           - setup_remote_docker:
                 docker_layer_caching: true
@@ -60,16 +60,16 @@ jobs:
                 command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           - run:
                 name: Load docker image
-                command: docker load -i mms5-auth-service.tar
+                command: docker load -i flexo-mms-auth-service.tar
           - run:
                 name: Tag docker image
-                command: docker tag openmbee/mms5-auth-service:latest openmbee/mms5-auth-service:${CIRCLE_TAG}
+                command: docker tag openmbee/flexo-mms-auth-service:latest openmbee/flexo-mms-auth-service:${CIRCLE_TAG}
           - run:
                 name: Deploy release to dockerhub
-                command: docker push openmbee/mms5-auth-service:${CIRCLE_TAG}
+                command: docker push openmbee/flexo-mms-auth-service:${CIRCLE_TAG}
           - run:
                 name: Deploy release as latest to dockerhub
-                command: docker push openmbee/mms5-auth-service:latest
+                command: docker push openmbee/flexo-mms-auth-service:latest
 
 workflows:
     version: 2
@@ -78,7 +78,7 @@ workflows:
         - build_and_test:
               filters:
                   tags:
-                      only: /[0-9.]+(-(a|b|rc)[0-9]+)?/
+                      only: /v[0-9.]+(-[\w-]+(\.[0-9]+)?)?/
               context:
                 - DockerHub
         - deploy_snapshot:
@@ -86,7 +86,7 @@ workflows:
                   - build_and_test
               filters:
                   branches:
-                      only: /((release|hotfix|support)/[0-9.]+(-(a|b|rc)[0-9]+)?|develop)/
+                      only: /((release|hotfix|support)/[0-9.]+(-[\w-]+(\.[0-9]+)?)?|develop)/
               context:
                 - DockerHub
         - deploy_release:
@@ -94,7 +94,7 @@ workflows:
                   - build_and_test
               filters:
                   tags:
-                      only: /[0-9.]+(-(a|b|rc)[0-9]+)?/
+                      only: /v[0-9.]+(-[\w-]+(\.[0-9]+)?)?/
                   branches:
                       ignore: /.*/
               context:

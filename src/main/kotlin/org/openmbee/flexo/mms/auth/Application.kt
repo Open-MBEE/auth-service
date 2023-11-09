@@ -1,9 +1,9 @@
-package org.openmbee.mms5.auth
+package org.openmbee.flexo.mms.auth
 
-import io.ktor.application.*
-import org.openmbee.mms5.auth.plugins.configureAuthentication
-import org.openmbee.mms5.auth.plugins.configureContentNegotiation
-import org.openmbee.mms5.auth.plugins.configureRouting
+import io.ktor.server.application.*
+import org.openmbee.flexo.mms.auth.plugins.configureAuthentication
+import org.openmbee.flexo.mms.auth.plugins.configureContentNegotiation
+import org.openmbee.flexo.mms.auth.plugins.configureRouting
 
 
 fun main(args: Array<String>): Unit =
