@@ -9,6 +9,16 @@ plugins {
     application
     kotlin("jvm") version "1.9.20"
     jacoco
+    id("org.sonarqube") version "4.4.1.3373"
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "flexo-mms-auth-service")
+        property("sonar.organization", "openmbee")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.groovy.jacoco.reportPath", "build/reports/jacoco/test/jacocoTestReport.xml")
+    }
 }
 
 group = "org.openmbee.flexo.mms"
@@ -58,4 +68,8 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test) // tests are required to run before generating the report
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }
