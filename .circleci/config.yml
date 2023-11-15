@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   docker: circleci/docker@2.1.1
-
+  gradle: circleci/gradle@3.0.0
 jobs:
   build_and_test:
     executor:
@@ -9,6 +9,9 @@ jobs:
     working_directory: /home/circleci/flexo-mms-auth-service
     steps:
       - checkout
+      - gradle/test
+      - gradle/run:
+          command: sonar
       - setup_remote_docker:
             docker_layer_caching: true
       - run:
