@@ -15,7 +15,7 @@ jobs:
           name: Test and Run Sonar Cloud Analysis
           command: |
             docker build -t flexo-mms-auth-test -f Dockerfile-Test .
-            docker run -e SONAR_TOKEN=$SONAR_TOKEN --name flexo-mms-auth-test
+            docker run -e SONAR_TOKEN=$SONAR_TOKEN flexo-mms-auth-test
       - run:
             name: Build docker image
             command: |
