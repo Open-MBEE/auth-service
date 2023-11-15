@@ -9,11 +9,13 @@ jobs:
     working_directory: /home/circleci/flexo-mms-auth-service
     steps:
       - checkout
-      - gradle/test
-      - gradle/run:
-          command: sonar
       - setup_remote_docker:
             docker_layer_caching: true
+      - run:
+          name: Test and Run Sonar Cloud Analysis
+          command: |
+            docker build -t flexo-mms-auth-test -f Dockerfile-Test .
+            docker run -e SONAR_TOKEN=$SONAR_TOKEN --name flexo-mms-auth-test
       - run:
             name: Build docker image
             command: |
@@ -84,6 +86,7 @@ workflows:
                       only: /v[0-9.]+(-[\w-]+(\.[0-9]+)?)?/
               context:
                 - DockerHub
+                - SonarCloud
         - deploy_snapshot:
               requires:
                   - build_and_test
