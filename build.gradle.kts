@@ -41,6 +41,15 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+
+    val junitVersion = "5.10.1"
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+}
+
+tasks {
+    test {
+        useJUnitPlatform()
+    }
 }
 
 tasks.test {
