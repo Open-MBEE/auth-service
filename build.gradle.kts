@@ -8,6 +8,7 @@ val kotlinx_json_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.9.20"
+    jacoco
 }
 
 group = "org.openmbee.flexo.mms"
@@ -40,4 +41,12 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
 }
