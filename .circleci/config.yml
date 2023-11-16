@@ -4,6 +4,15 @@ orbs:
   sonarcloud: sonarsource/sonarcloud@2.0.0
   gradle: circleci/gradle@3.0.0
 jobs:
+  workspace_setup:
+      executor:
+        name: docker/docker
+      working_directory: /home/circleci/flexo-mms-auth-service
+      steps:
+        - persist_to_workspace:
+            root: /home/circleci/
+            paths:
+              - flexo-mms-auth-service
   scan:
     executor:
       name: docker/docker
@@ -83,6 +92,7 @@ workflows:
     version: 2
     build-test-deploy:
       jobs:
+        - workspace_setup
         - gradle/test:
             reports_path: /home/circleci/flexo-mms-auth-service/build/reports
             test_results_path: /home/circleci/flexo-mms-auth-service/build/test-results
@@ -92,6 +102,8 @@ workflows:
                   paths:
                     - reports
                     - test-results
+            requires:
+              - workspace_setup
         - scan:
             requires:
               - gradle/test
