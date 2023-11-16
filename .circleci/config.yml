@@ -86,6 +86,8 @@ workflows:
         - scan:
             requires:
               - gradle/test
+            context:
+              - SonarCloud
         - build_and_test:
               filters:
                   tags:
