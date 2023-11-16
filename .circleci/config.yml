@@ -9,10 +9,12 @@ jobs:
         name: docker/docker
       working_directory: /home/circleci/flexo-mms-auth-service
       steps:
+        - run:
+            command: echo "keep > .keep"
         - persist_to_workspace:
             root: /home/circleci/
             paths:
-              - flexo-mms-auth-service
+              - flexo-mms-auth-service/*
   scan:
     executor:
       name: docker/docker
