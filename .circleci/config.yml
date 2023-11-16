@@ -82,13 +82,11 @@ workflows:
     version: 2
     build-test-deploy:
       jobs:
-        - gradle/test
-        - gradle/collect_test_results:
+        - gradle/test:
             reports_path: build/reports/
         - scan:
             requires:
               - gradle/test
-              - gradle/collect_test_results
             context:
               - SonarCloud
         - build_and_test:
