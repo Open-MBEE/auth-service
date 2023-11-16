@@ -83,8 +83,10 @@ workflows:
     build-test-deploy:
       jobs:
         - gradle/test:
-            reports_path: build/reports/
-            test_results_path: build/test-results/
+            post-steps:
+              - persist_to_workspace:
+                  root: "."
+                  paths: "build/reports"
         - scan:
             requires:
               - gradle/test
