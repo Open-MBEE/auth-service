@@ -1,7 +1,6 @@
 version: 2.1
 orbs:
   docker: circleci/docker@2.1.1
-  gradle: circleci/gradle@3.0.0
 jobs:
   build_and_test:
     executor:
