@@ -7,6 +7,7 @@ jobs:
   scan:
     executor:
       name: docker/docker
+    working_directory: /home/circleci/flexo-mms-auth-service
     steps:
       - checkout
       - sonarcloud/scan
@@ -83,10 +84,14 @@ workflows:
     build-test-deploy:
       jobs:
         - gradle/test:
+            reports_path: /home/circleci/flexo-mms-auth-service/build/reports
+            test_results_path: /home/circleci/flexo-mms-auth-service/build/test-results
             post-steps:
               - persist_to_workspace:
-                  root: "."
-                  paths: "build/reports"
+                  root: /home/circleci/flexo-mms-auth-service/build/
+                  paths:
+                    - reports
+                    - test-results
         - scan:
             requires:
               - gradle/test
