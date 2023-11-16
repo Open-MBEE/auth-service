@@ -14,7 +14,7 @@ plugins {
 
 sonar {
     properties {
-        property("sonar.projectKey", "flexo-mms-auth-service")
+        property("sonar.projectKey", "Open-MBEE_flexo-mms-auth-service")
         property("sonar.organization", "openmbee")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.groovy.jacoco.reportPath", "build/reports/jacoco/test/jacocoTestReport.xml")
