@@ -9,6 +9,8 @@ jobs:
       name: docker/docker
     steps:
       - checkout
+      - attach_workspace:
+          at: /home/circleci/project
       - run:
          command: "ls -a"
       - run:
