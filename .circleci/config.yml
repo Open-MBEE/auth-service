@@ -91,9 +91,9 @@ workflows:
         - gradle/test:
             post-steps:
               - persist_to_workspace:
-                  root: .
+                  root: /home/circleci/project
                   paths:
-                    - build
+                    - build/*
         - scan:
             requires:
               - gradle/test
