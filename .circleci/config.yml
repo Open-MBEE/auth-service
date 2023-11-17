@@ -11,12 +11,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: /home/circleci/project
-      - run:
-         command: "ls -a"
-      - run:
-         command: "ls /"
-      - run:
-         command: "pwd"
       - sonarcloud/scan
   build_and_test:
     executor:
@@ -105,8 +99,6 @@ workflows:
               filters:
                   tags:
                       only: /v[0-9.]+(-[\w-]+(\.[0-9]+)?)?/
-              requires:
-                - gradle/test
               context:
                 - DockerHub
                 - SonarCloud
