@@ -10,11 +10,11 @@ jobs:
       working_directory: /home/circleci/flexo-mms-auth-service
       steps:
         - run:
-            command: echo "keep > .keep"
+            command: echo "keep > .keep && pwd"
         - persist_to_workspace:
             root: /home/circleci/
             paths:
-              - flexo-mms-auth-service/*
+              - flexo-mms-auth-service
   scan:
     executor:
       name: docker/docker
@@ -115,6 +115,8 @@ workflows:
               filters:
                   tags:
                       only: /v[0-9.]+(-[\w-]+(\.[0-9]+)?)?/
+              requires:
+                - workspace_setup
               context:
                 - DockerHub
                 - SonarCloud
