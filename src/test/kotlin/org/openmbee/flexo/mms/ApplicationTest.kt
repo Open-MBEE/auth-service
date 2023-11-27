@@ -5,28 +5,28 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import java.security.KeyPairGenerator
+import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.JWT
 import java.util.*
 import org.junit.jupiter.api.Test
 import org.openmbee.flexo.mms.auth.module
 import kotlin.test.assertEquals
 
 class ApplicationTest {
-    @Test
-    fun userIsGreetedProperly() = testApplication {
-        val generator = KeyPairGenerator.getInstance("RSA")
-        generator.initialize(2048)
-        val keyPair = generator.genKeyPair()
+    private val issuer = "https://localhost/"
+    private val audience = "test-audience"
+    private val secret = "testsecret"
+    private val relm = "Test Relm"
 
+    @Test
+    fun userCanAuthenticateWithJWT() = testApplication {
 
         environment {
             config = MapApplicationConfig(
-                "jwt.privateKey" to Base64.getEncoder().encodeToString(keyPair.private.encoded),
-                "jwt.issuer" to "issuer.test",
-                "jwt.audience" to "audience",
-                "jwt.realm" to "realm",
-                "jwt.domain" to "domain",
-                "jwt.secret" to "123",
+                "jwt.audience" to audience,
+                "jwt.realm" to relm,
+                "jwt.domain" to issuer,
+                "jwt.secret" to secret,
             )
         }
 
@@ -34,7 +34,23 @@ class ApplicationTest {
             module()
         }
 
-        val greetings = client.get("/").bodyAsText()
-        assertEquals("Hello World!", greetings)
+        val token = generateJWT(username = "test name", groups = listOf("all"))
+        val authTest = client.get("/") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.bodyAsText()
+
+        assertEquals("Hello World!", authTest)
+    }
+
+    private fun generateJWT(username: String, groups: List<String>): String {
+
+        val algorithm = Algorithm.HMAC256(secret)
+        return JWT.create()
+            .withIssuer(issuer)
+            .withAudience(audience)
+            .withClaim("username", username)
+            .withArrayClaim("groups", groups.toTypedArray())
+            .withExpiresAt(Date(System.currentTimeMillis() + 3600000))
+            .sign(algorithm)
     }
 }
