@@ -18,6 +18,7 @@ import kotlinx.serialization.json.jsonObject
 import org.openmbee.flexo.mms.auth.UserDetailsPrincipal
 import org.openmbee.flexo.mms.auth.ldapAuthenticate
 import org.openmbee.flexo.mms.auth.ldapEscape
+import java.util.*
 
 @OptIn(InternalAPI::class)
 fun Application.configureAuthentication() {
@@ -154,4 +155,15 @@ fun getLdapConfValues(config: ApplicationConfig): LdapConfig {
         ldapGroupSearch,
         ldapGroupNamespace
     )
+}
+
+fun generateJWT(audience: String, issuer: String, secret: String, principal: UserDetailsPrincipal): String {
+    val expires = Date(System.currentTimeMillis() + (1 * 24 * 60 * 60 * 1000))
+    return JWT.create()
+        .withAudience(audience)
+        .withIssuer(issuer)
+        .withClaim("username", principal.name)
+        .withClaim("groups", principal.groups)
+        .withExpiresAt(expires)
+        .sign(Algorithm.HMAC256(secret))
 }
