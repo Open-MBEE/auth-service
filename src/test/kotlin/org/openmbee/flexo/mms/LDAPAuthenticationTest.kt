@@ -74,14 +74,14 @@ class LDAPAuthenticationTest {
 
         @JvmStatic
         @BeforeAll
-        fun beforeAll(): Unit {
+        fun beforeAll() {
             ldapContainer.start()
             fuseki.start()
         }
 
         @JvmStatic
         @AfterAll
-        fun afterAll(): Unit {
+        fun afterAll() {
             ldapContainer.stop()
             fuseki.stop()
         }
@@ -120,7 +120,7 @@ class LDAPAuthenticationTest {
         }.apply {
             assertEquals("200 OK", this.status.toString())
 
-            val token = Json.parseToJsonElement(this.bodyAsText()).jsonObject!!["token"]
+            val token = Json.parseToJsonElement(this.bodyAsText()).jsonObject["token"]
                 .toString()
                 .removeSurrounding("\"")
 
