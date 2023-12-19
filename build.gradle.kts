@@ -4,6 +4,7 @@ val logback_version: String by project
 val jena_version: String by project
 val consul_version: String by project
 val kotlinx_json_version: String by project
+val testcontainers_version: String by project
 
 plugins {
     application
@@ -54,6 +55,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation(kotlin("test"))
+
+    testImplementation("org.testcontainers:testcontainers:$testcontainers_version")
+    testImplementation("org.testcontainers:junit-jupiter:$testcontainers_version")
 
     val junitVersion = "5.10.1"
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
