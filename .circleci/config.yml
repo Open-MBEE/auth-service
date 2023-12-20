@@ -25,6 +25,9 @@ jobs:
     working_directory: /home/circleci/flexo-mms-auth-service
     steps:
       - checkout
+      - run:
+            name: Checkout Submodules
+            command: git submodule update --init --recursive
       - setup_remote_docker:
             docker_layer_caching: true
       - run:
