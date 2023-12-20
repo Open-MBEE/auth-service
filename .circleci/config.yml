@@ -11,25 +11,13 @@ executors:
         architecture: "amd64"
         platform: "linux/amd64"
 jobs:
-  checkout_submodules:
-    executor:
-      name: docker/docker
-    working_directory: /home/circleci/flexo-mms-auth-service
-    steps:
-      - checkout
-      - run: git submodule update --init --recursive
-      - persist_to_workspace:
-            root: /home/circleci/
-            paths:
-              - flexo-mms-auth-service/*
   scan:
     executor:
       name: docker/docker
-    working_directory: /home/circleci/flexo-mms-auth-service
     steps:
       - checkout
       - attach_workspace:
-          at: /home/circleci/flexo-mms-auth-service
+          at: /home/circleci/project
       - sonarcloud/scan
   build_and_test:
     executor:
@@ -103,13 +91,12 @@ workflows:
     version: 2
     build-test-deploy:
       jobs:
-        - checkout_submodules
         - gradle/test:
-            requires:
-              - checkout_submodules
+            pre-steps:
+              - run: git submodule update --init --recursive
             post-steps:
               - persist_to_workspace:
-                  root: /home/circleci/flexo-mms-auth-service
+                  root: /home/circleci/project
                   paths:
                     - build/*
             executor: machine_executor_amd64
