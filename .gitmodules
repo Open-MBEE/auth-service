@@ -1,0 +1,3 @@
+[submodule "submodules/flexo-mms-deployment"]
+	path = submodules/flexo-mms-deployment
+	url = git@github.com:Open-MBEE/flexo-mms-deployment.git

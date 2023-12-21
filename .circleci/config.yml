@@ -3,6 +3,13 @@ orbs:
   docker: circleci/docker@2.1.1
   sonarcloud: sonarsource/sonarcloud@2.0.0
   gradle: circleci/gradle@3.0.0
+executors:
+  machine_executor_amd64:
+      machine:
+        image: ubuntu-2204:2022.04.2
+      environment:
+        architecture: "amd64"
+        platform: "linux/amd64"
 jobs:
   scan:
     executor:
@@ -85,11 +92,15 @@ workflows:
     build-test-deploy:
       jobs:
         - gradle/test:
+            pre-steps:
+              - checkout
+              - run: git submodule update --init --recursive
             post-steps:
               - persist_to_workspace:
                   root: /home/circleci/project
                   paths:
                     - build/*
+            executor: machine_executor_amd64
         - scan:
             requires:
               - gradle/test
