@@ -89,52 +89,52 @@ class LDAPAuthenticationTest {
         }
     }
 
-//    @Test
-//    fun testGetLogin() = testApplication {
-//        environment {
-//            config = MapApplicationConfig(
-//                "jwt.audience" to audience,
-//                "jwt.realm" to relm,
-//                "jwt.domain" to issuer,
-//                "jwt.secret" to secret,
-//                "ldap.location" to "ldap://${ldapContainer.host}:${ldapContainer.getMappedPort(LDAP_PORT_NUMBER)}",
-//                "ldap.base" to LDAP_ROOT,
-//                "ldap.groupStore.context" to "http://layer1-service/",
-//                "ldap.groupStore.uri" to "http://${fuseki.host}:${fuseki.getMappedPort(FUSEKI_PORT_NUMBER)}/ds/sparql",
-//                "ldap.groupNamespace" to "ldap/group/",
-//                "ldap.userNamespace" to "ldap/user/",
-//                "ldap.groupAttribute" to "cn",
-//                "ldap.userPattern" to "cn=${LDAP_ADMIN_USERNAME}",
-//                "ldap.groupSearchFilter" to "(&(objectclass=group)(member=%s)(|(%s)))"
-//            )
-//        }
-//        application {
-//            module()
-//        }
-//
-//        val authString = "${LDAP_ADMIN_USERNAME}:${LDAP_ADMIN_PASSWORD}"
-//        val authBase64 = Base64.getEncoder().encodeToString(authString.toByteArray())
-//
-//        client.get("/login"){
-//            headers {
-//                append(HttpHeaders.Authorization, "Basic $authBase64")
-//            }
-//        }.apply {
-//            assertEquals("200 OK", this.status.toString())
-//
-//            val token = Json.parseToJsonElement(this.bodyAsText()).jsonObject["token"]
-//                .toString()
-//                .removeSurrounding("\"")
-//
-//            val claim: Map<String, Claim> = decodeJWT(token, secret)
-//
-//            // validate JWT
-//            assertEquals("ldap/user/${LDAP_ADMIN_USERNAME}", claim.get("username")
-//                .toString()
-//                .removeSurrounding("\"")
-//            )
-//        }
-//    }
+    @Test
+    fun testGetLogin() = testApplication {
+        environment {
+            config = MapApplicationConfig(
+                "jwt.audience" to audience,
+                "jwt.realm" to relm,
+                "jwt.domain" to issuer,
+                "jwt.secret" to secret,
+                "ldap.location" to "ldap://${ldapContainer.host}:${ldapContainer.getMappedPort(LDAP_PORT_NUMBER)}",
+                "ldap.base" to LDAP_ROOT,
+                "ldap.groupStore.context" to "http://layer1-service/",
+                "ldap.groupStore.uri" to "http://${fuseki.host}:${fuseki.getMappedPort(FUSEKI_PORT_NUMBER)}/ds/sparql",
+                "ldap.groupNamespace" to "ldap/group/",
+                "ldap.userNamespace" to "ldap/user/",
+                "ldap.groupAttribute" to "cn",
+                "ldap.userPattern" to "cn=${LDAP_ADMIN_USERNAME}",
+                "ldap.groupSearchFilter" to "(&(objectclass=group)(member=%s)(|(%s)))"
+            )
+        }
+        application {
+            module()
+        }
+
+        val authString = "${LDAP_ADMIN_USERNAME}:${LDAP_ADMIN_PASSWORD}"
+        val authBase64 = Base64.getEncoder().encodeToString(authString.toByteArray())
+
+        client.get("/login"){
+            headers {
+                append(HttpHeaders.Authorization, "Basic $authBase64")
+            }
+        }.apply {
+            assertEquals("200 OK", this.status.toString())
+
+            val token = Json.parseToJsonElement(this.bodyAsText()).jsonObject["token"]
+                .toString()
+                .removeSurrounding("\"")
+
+            val claim: Map<String, Claim> = decodeJWT(token, secret)
+
+            // validate JWT
+            assertEquals("ldap/user/${LDAP_ADMIN_USERNAME}", claim.get("username")
+                .toString()
+                .removeSurrounding("\"")
+            )
+        }
+    }
 
     @Test
     fun testCheckLogin() = testApplication {
@@ -172,10 +172,8 @@ class LDAPAuthenticationTest {
 
             val response = Json.parseToJsonElement(this.bodyAsText()).jsonObject["user"]
 
-            if (response != null) {
-                assertEquals(name, (response.jsonObject["name"].toString().removeSurrounding("\"")))
-                assertEquals(groups.toString(), response.jsonObject["groups"].toString().replace("\"", ""))
-            }
+            assertEquals(name, (response!!.jsonObject["name"].toString().removeSurrounding("\"")))
+            assertEquals(groups.toString(), response.jsonObject["groups"].toString().replace("\"", ""))
         }
     }
 
