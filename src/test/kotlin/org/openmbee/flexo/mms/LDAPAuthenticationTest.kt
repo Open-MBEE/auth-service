@@ -12,7 +12,9 @@ import io.ktor.server.testing.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import org.junit.jupiter.api.*
+import org.openmbee.flexo.mms.auth.UserDetailsPrincipal
 import org.openmbee.flexo.mms.auth.module
+import org.openmbee.flexo.mms.auth.plugins.generateJWT
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -156,31 +158,28 @@ class LDAPAuthenticationTest {
         application {
             module()
         }
+        val name = "test name"
+        val groups = listOf("all")
+        val principal = UserDetailsPrincipal(name = name, groups = groups)
+        val token = generateJWT(issuer = issuer, audience = audience, secret = secret, principal = principal)
 
-        val authString = "${LDAP_ADMIN_USERNAME}:${LDAP_ADMIN_PASSWORD}"
-        val authBase64 = Base64.getEncoder().encodeToString(authString.toByteArray())
-
-        get("/check") {
+        client.get("/check") {
             headers {
-                append(HttpHeaders.Authorization, "Basic $authBase64")
+                append(HttpHeaders.Authorization, "Bearer $token")
             }
         }.apply {
             assertEquals("200 OK", this.status.toString())
 
-            val token = Json.parseToJsonElement(this.bodyAsText()).jsonObject["token"]
-                .toString()
-                .removeSurrounding("\"")
-
             val claim: Map<String, Claim> = decodeJWT(token, secret)
 
             // validate JWT
-            assertEquals("ldap/user/${LDAP_ADMIN_USERNAME}", claim.get("username")
-                .toString()
-                .removeSurrounding("\"")
-            )
+            assertEquals(issuer, claim.get("iss").toString().removeSurrounding("\""))
+            assertEquals(audience, claim.get("aud").toString().removeSurrounding("\""))
+            assertEquals(name, claim.get("username").toString().removeSurrounding("\""))
+            assertEquals(groups.toString(), claim.get("groups").toString().replace("\"", ""))
         }
     }
-    
+
     fun decodeJWT(token: String, secret: String): Map<String, Claim> {
         val algorithm = Algorithm.HMAC256(secret)
         val verifier: JWTVerifier = JWT.require(algorithm).build()
