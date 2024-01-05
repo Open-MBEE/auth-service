@@ -115,6 +115,7 @@ class LDAPAuthenticationTest {
         val authString = "${LDAP_ADMIN_USERNAME}:${LDAP_ADMIN_PASSWORD}"
         val authBase64 = Base64.getEncoder().encodeToString(authString.toByteArray())
 
+        //Test for /login route, tests that when provided username/pw, token returned is for the correct user
         client.get("/login"){
             headers {
                 append(HttpHeaders.Authorization, "Basic $authBase64")
@@ -134,30 +135,8 @@ class LDAPAuthenticationTest {
                 .removeSurrounding("\"")
             )
         }
-    }
 
-    @Test
-    fun testCheckLogin() = testApplication {
-        environment {
-            config = MapApplicationConfig(
-                "jwt.audience" to audience,
-                "jwt.realm" to relm,
-                "jwt.domain" to issuer,
-                "jwt.secret" to secret,
-                "ldap.location" to "ldap://${ldapContainer.host}:${ldapContainer.getMappedPort(LDAP_PORT_NUMBER)}",
-                "ldap.base" to LDAP_ROOT,
-                "ldap.groupStore.context" to "http://layer1-service/",
-                "ldap.groupStore.uri" to "http://${fuseki.host}:${fuseki.getMappedPort(FUSEKI_PORT_NUMBER)}/ds/sparql",
-                "ldap.groupNamespace" to "ldap/group/",
-                "ldap.userNamespace" to "ldap/user/",
-                "ldap.groupAttribute" to "cn",
-                "ldap.userPattern" to "cn=${LDAP_ADMIN_USERNAME}",
-                "ldap.groupSearchFilter" to "(&(objectclass=group)(member=%s)(|(%s)))"
-            )
-        }
-        application {
-            module()
-        }
+        //Test for /check route - confirms that when passed a token, the api returns the correct user
         val name = "test name"
         val groups = listOf("all")
         val principal = UserDetailsPrincipal(name = name, groups = groups)
@@ -172,10 +151,12 @@ class LDAPAuthenticationTest {
 
             val response = Json.parseToJsonElement(this.bodyAsText()).jsonObject["user"]
 
+            //Validate that user returned is the same as the username from the token
             assertEquals(name, (response!!.jsonObject["name"].toString().removeSurrounding("\"")))
             assertEquals(groups.toString(), response.jsonObject["groups"].toString().replace("\"", ""))
         }
     }
+
 
     fun decodeJWT(token: String, secret: String): Map<String, Claim> {
         val algorithm = Algorithm.HMAC256(secret)
