@@ -9,6 +9,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import io.ktor.test.dispatcher.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import org.junit.jupiter.api.*
@@ -74,11 +75,27 @@ class LDAPAuthenticationTest {
             waitingFor(Wait.forLogMessage(".*Start Fuseki.*\\n", 1)) // wait for ldap server to start
         }
 
+        var testEnv = MapApplicationConfig(
+                    "jwt.audience" to audience,
+                    "jwt.realm" to relm,
+                    "jwt.domain" to issuer,
+                    "jwt.secret" to secret,
+                    "ldap.base" to LDAP_ROOT,
+                    "ldap.groupStore.context" to "http://layer1-service/",
+                    "ldap.groupNamespace" to "ldap/group/",
+                    "ldap.userNamespace" to "ldap/user/",
+                    "ldap.groupAttribute" to "cn",
+                    "ldap.userPattern" to "cn=${LDAP_ADMIN_USERNAME}",
+                    "ldap.groupSearchFilter" to "(&(objectclass=group)(member=%s)(|(%s)))"
+                )
+
         @JvmStatic
         @BeforeAll
         fun beforeAll() {
             ldapContainer.start()
             fuseki.start()
+            testEnv.put("ldap.location", "ldap://${ldapContainer.host}:${ldapContainer.getMappedPort(LDAP_PORT_NUMBER)}")
+            testEnv.put("ldap.groupStore.uri", "http://${fuseki.host}:${fuseki.getMappedPort(FUSEKI_PORT_NUMBER)}/ds/sparql")
         }
 
         @JvmStatic
@@ -92,21 +109,7 @@ class LDAPAuthenticationTest {
     @Test
     fun testGetLogin() = testApplication {
         environment {
-            config = MapApplicationConfig(
-                "jwt.audience" to audience,
-                "jwt.realm" to relm,
-                "jwt.domain" to issuer,
-                "jwt.secret" to secret,
-                "ldap.location" to "ldap://${ldapContainer.host}:${ldapContainer.getMappedPort(LDAP_PORT_NUMBER)}",
-                "ldap.base" to LDAP_ROOT,
-                "ldap.groupStore.context" to "http://layer1-service/",
-                "ldap.groupStore.uri" to "http://${fuseki.host}:${fuseki.getMappedPort(FUSEKI_PORT_NUMBER)}/ds/sparql",
-                "ldap.groupNamespace" to "ldap/group/",
-                "ldap.userNamespace" to "ldap/user/",
-                "ldap.groupAttribute" to "cn",
-                "ldap.userPattern" to "cn=${LDAP_ADMIN_USERNAME}",
-                "ldap.groupSearchFilter" to "(&(objectclass=group)(member=%s)(|(%s)))"
-            )
+            config = testEnv
         }
         application {
             module()
@@ -135,6 +138,16 @@ class LDAPAuthenticationTest {
                 .removeSurrounding("\"")
             )
         }
+    }
+
+    @Test
+    fun testCheck() = testApplication {
+        environment {
+            config = testEnv
+        }
+        application {
+            module()
+        }
 
         //Test for /check route - confirms that when passed a token, the api returns the correct user
         val name = "test name"
@@ -156,7 +169,6 @@ class LDAPAuthenticationTest {
             assertEquals(groups.toString(), response.jsonObject["groups"].toString().replace("\"", ""))
         }
     }
-
 
     fun decodeJWT(token: String, secret: String): Map<String, Claim> {
         val algorithm = Algorithm.HMAC256(secret)
