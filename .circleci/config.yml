@@ -19,7 +19,7 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
       - sonarcloud/scan
-  build_and_test:
+  build_docker:
     executor:
       name: docker/docker
     working_directory: /home/circleci/flexo-mms-auth-service
@@ -106,7 +106,7 @@ workflows:
               - gradle/test
             context:
               - SonarCloud
-        - build_and_test:
+        - build_docker:
               filters:
                   tags:
                       only: /v[0-9.]+(-[\w-]+(\.[0-9]+)?)?/
@@ -115,7 +115,7 @@ workflows:
                 - SonarCloud
         - deploy_snapshot:
               requires:
-                  - build_and_test
+                  - build_docker
               filters:
                   branches:
                       only: /((release|hotfix|support)/[0-9.]+(-[\w-]+(\.[0-9]+)?)?|develop)/
@@ -123,7 +123,7 @@ workflows:
                 - DockerHub
         - deploy_release:
               requires:
-                  - build_and_test
+                  - build_docker
               filters:
                   tags:
                       only: /v[0-9.]+(-[\w-]+(\.[0-9]+)?)?/
